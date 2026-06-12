@@ -124,26 +124,20 @@ export default function ScadaDashboard() {
   });
 
   const [historyPressure, setHistoryPressure] = useState<number[]>(() =>
-    Array.from({ length: 25 }, () => 6.4)
+    Array.from({ length: 25 }, (_, index) => Number((6.2 + (index % 5) * 0.08).toFixed(2)))
   );
   const [historyFlow, setHistoryFlow] = useState<number[]>(() =>
-    Array.from({ length: 25 }, () => 760)
+    Array.from({ length: 25 }, (_, index) => 730 + (index % 6) * 10)
   );
   const [historyDewPoint, setHistoryDewPoint] = useState<number[]>(() =>
-    Array.from({ length: 25 }, () => -40)
+    Array.from({ length: 25 }, (_, index) => Number((-42 + (index % 5) * 0.8).toFixed(1)))
   );
 
-  // Initialize random values only on client to avoid hydration mismatch
-  useEffect(() => {
-    setHistoryPressure(Array.from({ length: 25 }, () => 6.2 + Math.random() * 0.4));
-    setHistoryFlow(Array.from({ length: 25 }, () => 730 + Math.random() * 60));
-    setHistoryDewPoint(Array.from({ length: 25 }, () => -42 + Math.random() * 4));
-  }, []);
 
 
   const [alarmsMuted, setAlarmsMuted] = useState<boolean>(false);
-  const [isDraining, setIsDraining] = useState<boolean>(false);
   const tickCounter = useRef<number>(0);
+
 
   const emitAlarm = (tag: string, device: string, message: string, severity: 'WARNING' | 'CRITICAL') => {
     const timestamp = new Date().toLocaleTimeString(undefined, { hour12: false });
@@ -342,7 +336,6 @@ export default function ScadaDashboard() {
     setHistoryPressure(Array.from({ length: 25 }, () => 7.2 + Math.random() * 0.1));
     setHistoryFlow(Array.from({ length: 25 }, () => 850 + Math.random() * 20));
     setHistoryDewPoint(Array.from({ length: 25 }, () => -40 + Math.random() * 1));
-    setIsDraining(false);
     emitAlarm('SYS-RESET', 'HMI Master', 'System telemetry core databases reindexed & refreshed. Hard reset successful.', 'WARNING');
   };
 
@@ -352,7 +345,7 @@ export default function ScadaDashboard() {
         tickCounter.current++;
 
         let totalFlowGenerated = 0;
-        let powerConsumed = 0;
+
 
         const updatedCompressors = prev.compressors.map((comp) => {
           if (comp.status === 'RUN') {
@@ -372,7 +365,6 @@ export default function ScadaDashboard() {
             const currentTemp = 65 + 0.25 * targetLoad + Math.sin(Date.now() / 10000) * 2;
 
             totalFlowGenerated += currentFlow;
-            powerConsumed += currentPower;
 
             return {
               ...comp,
@@ -427,7 +419,7 @@ export default function ScadaDashboard() {
           }, 10);
         }
 
-        let isAnyDryerOnline = prev.dryers.some((d) => d.status === 'RUN');
+        const isAnyDryerOnline = prev.dryers.some((d) => d.status === 'RUN');
 
         const updatedDryers = prev.dryers.map((dryer) => {
           if (dryer.status === 'RUN') {

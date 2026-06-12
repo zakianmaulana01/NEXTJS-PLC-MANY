@@ -3,22 +3,17 @@
 import React from 'react';
 import {
   Activity,
-  AlertOctagon,
-  AlertTriangle,
   Bell,
   Check,
   ChevronRight,
-  Fan,
-  Gauge,
   Info,
-  Settings,
   Shield,
   Trash2,
   Volume2,
   VolumeX,
   ChevronLeft,
 } from 'lucide-react';
-import { SystemTelemetry, Alarm } from '@/types/scada';
+import { SystemTelemetry } from '@/types/scada';
 import Sparkline from './Sparkline';
 import NumberFlow from './NumberFlow';
 import { useTheme } from '@/context/ThemeContext';

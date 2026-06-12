@@ -11,18 +11,11 @@ import {
   Fan,
   Droplets,
   Gauge,
-  Thermometer,
-  Zap,
   Power,
   RotateCw,
-  Sliders,
-  Sparkles,
-  ArrowDown,
-  Lock,
-  Unlock,
   Activity,
 } from 'lucide-react';
-import { SystemTelemetry, MachineStatus } from '@/types/scada';
+import { SystemTelemetry } from '@/types/scada';
 import NumberFlow from './NumberFlow';
 
 interface ScadaMapProps {

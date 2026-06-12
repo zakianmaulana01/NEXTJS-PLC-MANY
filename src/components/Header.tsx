@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { AlertTriangle, CheckCircle, RefreshCw, Wind, Sun, Moon } from 'lucide-react';
+import { RefreshCw, Wind, Sun, Moon } from 'lucide-react';
 import { SystemTelemetry } from '@/types/scada';
 import { useTheme } from '@/context/ThemeContext';
 
