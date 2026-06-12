@@ -21,7 +21,9 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 ## Migration Note
 This project was migrated from a React + Vite setup to Next.js App Router for better scalability and developer experience.
 
-## Features
+## Routes
+- `/` : Main Monitoring Dashboard
+- `/compressed-air` : Interactive System Flow Canvas Editor (Drag & Drop)
 - Real-time P&ID HMI Graphic Screen
 - Simulation Modes (Leak, Dryer Fault, Peak Demand)
 - Dynamic Alarm Queue

@@ -742,7 +742,7 @@ export default function ScadaMap({
                 {/* Compressor operations action buttons */}
                 <div className="flex items-center gap-1 mt-1">
                   <button
-                    onClick={() => toggleCompressor(comp.id)}
+                    onClick={() => onToggleCompressor(comp.id)}
                     className={`flex-1 py-1 rounded-none font-mono font-bold text-[9px] uppercase tracking-wider flex items-center justify-center gap-1 border transition-all ${
                       isRun
                         ? 'bg-[#F0FAF5] dark:bg-slate-950 border-[#16C784]/30 dark:border-emerald-800/50 text-[#16C784] dark:text-emerald-400 hover:bg-[#E1F6EB] dark:hover:bg-emerald-900/40'
@@ -754,7 +754,7 @@ export default function ScadaMap({
                   </button>
 
                   <button
-                    onClick={() => toggleFault(comp.id)}
+                    onClick={() => onSetCompressorFault(comp.id)}
                     className={`p-1 rounded-none font-mono font-bold text-[9px] flex items-center justify-center border transition-all ${
                       isFault
                         ? 'bg-[#FFF0F1] dark:bg-slate-950 border-[#FF5A5F]/30 dark:border-rose-800 text-[#FF5A5F] dark:text-rose-400 hover:bg-[#FFE5E6] dark:hover:bg-rose-950/40'

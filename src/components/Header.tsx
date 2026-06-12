@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { RefreshCw, Wind, Sun, Moon } from 'lucide-react';
+import { RefreshCw, Wind } from 'lucide-react';
 import { SystemTelemetry } from '@/types/scada';
 import { useTheme } from '@/context/ThemeContext';
 
@@ -20,7 +20,7 @@ export default function Header({
   muteAlarms,
   alarmsMuted,
 }: HeaderProps) {
-  const { theme, toggle } = useTheme();
+  const { theme } = useTheme();
   const [timeStr, setTimeStr] = useState<string>('');
 
   useEffect(() => {
@@ -94,37 +94,7 @@ export default function Header({
                 : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200'
           }`}
         >
-          Normal
-        </button>
-        
-        <button
-          onClick={() => setSimMode('LEAK')}
-          className={`px-2.5 py-1 text-[10px] font-mono uppercase font-bold rounded transition ${
-            telemetry.simMode === 'LEAK'
-              ? isDark
-                ? 'bg-slate-850 border-slate-750 text-amber-400 shadow-[inset_0_1px_3px_rgba(0,0,0,0.4)]'
-                : 'bg-amber-50 border-amber-200 text-amber-700 shadow-sm'
-              : isDark
-                ? 'text-slate-500 hover:text-slate-350 hover:bg-slate-900/60'
-                : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200'
-          }`}
-        >
-          Leak
-        </button>
-
-        <button
-          onClick={() => setSimMode('DRYER_FAULT')}
-          className={`px-2.5 py-1 text-[10px] font-mono uppercase font-bold rounded transition ${
-            telemetry.simMode === 'DRYER_FAULT'
-              ? isDark
-                ? 'bg-slate-850 border-slate-750 text-rose-450 shadow-[inset_0_1px_3px_rgba(0,0,0,0.4)]'
-                : 'bg-rose-50 border-rose-200 text-rose-700 shadow-sm'
-              : isDark
-                ? 'text-slate-500 hover:text-slate-350 hover:bg-slate-900/60'
-                : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200'
-          }`}
-        >
-          Dryer Fl
+          Flow Meter Compressed
         </button>
 
         <button
@@ -139,7 +109,7 @@ export default function Header({
                 : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200'
           }`}
         >
-          Peak Dem
+          Flow Meter Boiler
         </button>
 
         <div className={`h-4 w-px mx-1 ${isDark ? 'bg-slate-800' : 'bg-slate-300'}`} />
@@ -161,19 +131,6 @@ export default function Header({
       {/* Right details */}
       <div className="flex items-center justify-between w-full lg:w-auto lg:justify-end gap-4">
         
-        {/* Theme Toggle */}
-        <button
-          onClick={toggle}
-          className={`p-2 rounded-full transition-colors ${
-            isDark 
-              ? 'bg-slate-800 text-amber-300 hover:bg-slate-700' 
-              : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-          }`}
-          title={`Switch to ${isDark ? 'Light' : 'Dark'} mode`}
-        >
-          {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-        </button>
-
         <div className="hidden lg:flex items-center gap-2">
           <div className={`w-2 h-2 rounded-full ${
             telemetry.overallStatus === 'NORMAL'
