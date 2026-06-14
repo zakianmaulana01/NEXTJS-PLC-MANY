@@ -1,8 +1,8 @@
 'use client';
 
 import { create } from 'zustand';
-import type { Node, Edge, Viewport, OnNodesChange, OnEdgesChange, Connection } from '@xyflow/react';
-import { applyNodeChanges, applyEdgeChanges, addEdge } from '@xyflow/react';
+import type { Node, Edge, Viewport, OnNodesChange, OnEdgesChange, Connection, OnReconnect } from '@xyflow/react';
+import { applyNodeChanges, applyEdgeChanges, addEdge, reconnectEdge } from '@xyflow/react';
 import type { EditorNodeData, EditorEdgeData, SavedLayout, PipeWaypoint } from '@/types/editor';
 import { LAYOUT_STORAGE_KEY } from '@/types/editor';
 import { DEFAULT_TEMPLATE } from '@/lib/default-template';
@@ -25,6 +25,7 @@ interface EditorState {
   onNodesChange: OnNodesChange<EditorNode>;
   onEdgesChange: OnEdgesChange<EditorEdge>;
   onConnect: (connection: Connection) => void;
+  onReconnect: OnReconnect<EditorEdge>;
   setViewport: (viewport: Viewport) => void;
   // Node operations
   addNode: (node: EditorNode) => void;
@@ -95,6 +96,13 @@ export const useEditorStore = create<EditorState>((set, get) => ({
         },
         state.edges,
       ),
+    }));
+  },
+
+  onReconnect: (oldEdge, newConnection) => {
+    get().pushHistory();
+    set((state) => ({
+      edges: reconnectEdge(oldEdge, newConnection, state.edges),
     }));
   },
 

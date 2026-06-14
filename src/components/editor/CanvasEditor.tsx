@@ -51,6 +51,7 @@ export default function CanvasEditor({ snapToGrid }: CanvasEditorProps) {
   const onNodesChange = useEditorStore((s) => s.onNodesChange);
   const onEdgesChange = useEditorStore((s) => s.onEdgesChange);
   const onConnect = useEditorStore((s) => s.onConnect);
+  const onReconnect = useEditorStore((s) => s.onReconnect);
   const addNode = useEditorStore((s) => s.addNode);
   const setSelectedNode = useEditorStore((s) => s.setSelectedNode);
   const setSelectedEdge = useEditorStore((s) => s.setSelectedEdge);
@@ -205,6 +206,7 @@ export default function CanvasEditor({ snapToGrid }: CanvasEditorProps) {
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
+        onReconnect={onReconnect}
         onDrop={onDrop}
         onDragOver={onDragOver}
         onNodeClick={onNodeClick}
@@ -225,7 +227,7 @@ export default function CanvasEditor({ snapToGrid }: CanvasEditorProps) {
           type: 'animatedPipe',
           data: {
             flowAnimated: true,
-            flowColor: '#3B82F6',
+            flowColor: '#06B6D4',
             pipeThickness: 3,
             flowDirection: 'forward',
             waypoints: [],

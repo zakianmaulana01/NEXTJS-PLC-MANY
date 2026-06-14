@@ -3,6 +3,7 @@
 import React, { useCallback } from 'react';
 import {
   BaseEdge,
+  EdgeLabelRenderer,
   getSmoothStepPath,
   useReactFlow,
   type EdgeProps,
@@ -14,10 +15,11 @@ import { useEditorStore } from '@/hooks/useEditorStore';
 type AnimatedPipeEdgeType = Edge<EditorEdgeData, 'animatedPipe'>;
 
 /**
- * Animated pipe edge with draggable waypoints.
- * - Double-click on the pipe to add a bend point.
- * - Drag a bend point (white dot) to reroute the pipe.
- * - Double-click a bend point to remove it.
+ * Animated pipe edge.
+ * - Drag the SOURCE or TARGET handle (circle at end of pipe) to reconnect to a new node.
+ * - Double-click the pipe body to add a bend waypoint.
+ * - Drag the white waypoint dot to reroute the pipe.
+ * - Double-click a waypoint dot to remove it.
  */
 export function AnimatedPipeEdge(props: EdgeProps<AnimatedPipeEdgeType>) {
   const {
@@ -30,13 +32,13 @@ export function AnimatedPipeEdge(props: EdgeProps<AnimatedPipeEdgeType>) {
   const moveWaypoint = useEditorStore((s) => s.moveWaypoint);
   const removeWaypoint = useEditorStore((s) => s.removeWaypoint);
 
-  const flowColor = data?.flowColor || '#3B82F6';
+  const flowColor = data?.flowColor || '#06B6D4';
   const thickness = data?.pipeThickness || 3;
   const animated = data?.flowAnimated ?? true;
   const direction = data?.flowDirection || 'forward';
   const waypoints: PipeWaypoint[] = data?.waypoints || [];
 
-  // Build path: if waypoints exist, draw straight segments through them; else smoothstep
+  // Path: segments through waypoints, else smoothstep
   let edgePath: string;
   if (waypoints.length > 0) {
     const pts = [
@@ -51,7 +53,7 @@ export function AnimatedPipeEdge(props: EdgeProps<AnimatedPipeEdgeType>) {
     });
   }
 
-  // Add a waypoint where the user double-clicks on the pipe
+  // Add waypoint at double-click position on pipe
   const onPathDoubleClick = useCallback(
     (e: React.MouseEvent) => {
       e.stopPropagation();
@@ -61,14 +63,13 @@ export function AnimatedPipeEdge(props: EdgeProps<AnimatedPipeEdgeType>) {
     [id, screenToFlowPosition, addWaypoint],
   );
 
-  // Drag a waypoint
+  // Drag waypoint
   const onWaypointPointerDown = useCallback(
     (e: React.PointerEvent, wpId: string) => {
       e.stopPropagation();
       (e.target as Element).setPointerCapture?.(e.pointerId);
-
-      const handleMove = (moveEvent: PointerEvent) => {
-        const pos = screenToFlowPosition({ x: moveEvent.clientX, y: moveEvent.clientY });
+      const handleMove = (me: PointerEvent) => {
+        const pos = screenToFlowPosition({ x: me.clientX, y: me.clientY });
         moveWaypoint(id, wpId, pos.x, pos.y);
       };
       const handleUp = () => {
@@ -81,13 +82,16 @@ export function AnimatedPipeEdge(props: EdgeProps<AnimatedPipeEdgeType>) {
     [id, screenToFlowPosition, moveWaypoint],
   );
 
+  const midX = (sourceX + targetX) / 2;
+  const midY = (sourceY + targetY) / 2;
+
   return (
     <>
-      {/* Background pipe (thick, faded) */}
+      {/* Background glow */}
       <BaseEdge
         id={`${id}-bg`}
         path={edgePath}
-        style={{ stroke: flowColor + '25', strokeWidth: thickness + 6, strokeLinecap: 'round' }}
+        style={{ stroke: flowColor + '28', strokeWidth: thickness + 8, strokeLinecap: 'round' }}
       />
       {/* Main pipe */}
       <BaseEdge
@@ -96,39 +100,49 @@ export function AnimatedPipeEdge(props: EdgeProps<AnimatedPipeEdgeType>) {
         markerEnd={markerEnd}
         style={{ stroke: flowColor, strokeWidth: thickness, strokeLinecap: 'round' }}
       />
-      {/* Invisible wide hit-area for double-click to add waypoint */}
+      {/* Wide transparent hit area — double-click to add waypoint */}
       <path
         d={edgePath}
         fill="none"
         stroke="transparent"
-        strokeWidth={16}
-        style={{ cursor: 'copy', pointerEvents: 'stroke' }}
+        strokeWidth={20}
+        style={{ cursor: 'crosshair', pointerEvents: 'stroke' }}
         onDoubleClick={onPathDoubleClick}
       />
-      {/* Animated flow overlay */}
+      {/* Flow animation */}
       {animated && (
         <path
           d={edgePath}
           fill="none"
-          stroke="white"
+          stroke="rgba(255,255,255,0.65)"
           strokeWidth={thickness > 2 ? 1.5 : 1}
           strokeDasharray="6 8"
           strokeLinecap="round"
-          opacity={0.6}
-          style={{ animation: `flowDash 1.2s linear infinite${direction === 'reverse' ? ' reverse' : ''}`, pointerEvents: 'none' }}
+          style={{
+            animation: `flowDash 1.2s linear infinite${direction === 'reverse' ? ' reverse' : ''}`,
+            pointerEvents: 'none',
+          }}
         />
       )}
       {/* Selection highlight */}
       {selected && (
-        <path d={edgePath} fill="none" stroke="#3B82F6" strokeWidth={thickness + 10} strokeLinecap="round" opacity={0.12} style={{ pointerEvents: 'none' }} />
+        <path
+          d={edgePath}
+          fill="none"
+          stroke="#3B82F6"
+          strokeWidth={thickness + 12}
+          strokeLinecap="round"
+          opacity={0.1}
+          style={{ pointerEvents: 'none' }}
+        />
       )}
-      {/* Draggable waypoint handles (visible when selected) */}
+      {/* Waypoint drag handles */}
       {selected && waypoints.map((wp) => (
         <circle
           key={wp.id}
           cx={wp.x}
           cy={wp.y}
-          r={6}
+          r={7}
           fill="white"
           stroke="#3B82F6"
           strokeWidth={2}
@@ -137,22 +151,18 @@ export function AnimatedPipeEdge(props: EdgeProps<AnimatedPipeEdgeType>) {
           onDoubleClick={(e) => { e.stopPropagation(); removeWaypoint(id, wp.id); }}
         />
       ))}
-      {/* Edge label */}
+      {/* Label */}
       {data?.label && (
-        <foreignObject
-          width={100}
-          height={24}
-          x={(sourceX + targetX) / 2 - 50}
-          y={(sourceY + targetY) / 2 - 12}
-          className="pointer-events-none"
-        >
-          <div className="flex items-center justify-center h-full">
-            <span className="text-[8px] font-mono font-bold uppercase tracking-wider bg-white/90 dark:bg-slate-900/90 text-slate-500 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700">
-              {data.label}
-            </span>
+        <EdgeLabelRenderer>
+          <div
+            style={{ transform: `translate(-50%, -50%) translate(${midX}px, ${midY}px)` }}
+            className="absolute pointer-events-none px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700 bg-white/90 dark:bg-slate-900/90 text-[8px] font-mono font-bold uppercase tracking-wider text-slate-500"
+          >
+            {data.label}
           </div>
-        </foreignObject>
+        </EdgeLabelRenderer>
       )}
     </>
   );
 }
+
