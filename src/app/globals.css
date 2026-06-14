@@ -143,3 +143,52 @@
     @apply text-xs font-medium uppercase tracking-[0.24em] text-muted-foreground;
   }
 }
+
+/* ── Canvas Editor Styles ─────────────────────────── */
+
+@keyframes flowDash {
+  from { stroke-dashoffset: 28; }
+  to { stroke-dashoffset: 0; }
+}
+
+/* Properties panel input fields */
+.input-field {
+  width: 100%;
+  padding: 0.375rem 0.5rem;
+  font-size: 0.625rem;
+  font-family: var(--font-mono);
+  line-height: 1.4;
+  border-radius: 0.25rem;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  color: #334155;
+  transition: all 0.15s;
+  outline: none;
+}
+.input-field:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+}
+.dark .input-field {
+  border-color: #334155;
+  background: #0f172a;
+  color: #e2e8f0;
+}
+.dark .input-field:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25);
+}
+
+/* React Flow overrides for dark mode */
+.dark .react-flow__node {
+  color: #e2e8f0;
+}
+.dark .react-flow__controls button {
+  background: #0f172a;
+  color: #94a3b8;
+  border-color: #334155;
+}
+.dark .react-flow__controls button:hover {
+  background: #1e293b;
+  color: #e2e8f0;
+}

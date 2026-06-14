@@ -6,6 +6,12 @@
  */
 
 import React from 'react';
+import type { CanvasNodeConfig, PipeSegmentConfig, PipeColorId } from '@/types/canvas';
+import { PIPE_COLOR_PRESETS } from '@/types/canvas';
+import { useCanvasState } from '@/hooks/useCanvasState';
+import NodeSidebar from '@/components/hmi/NodeSidebar';
+import { useTheme } from '@/context/ThemeContext';
+
 import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
 import {
   Fan,
@@ -18,12 +24,40 @@ import {
 import { SystemTelemetry } from '@/types/scada';
 import NumberFlow from './NumberFlow';
 
+const DEFAULT_NODES: CanvasNodeConfig[] = [
+  { id: 'COMP-01', tag: 'COMP-01', label: 'Primary Compressor', type: 'compressor', visible: true },
+  { id: 'COMP-02', tag: 'COMP-02', label: 'Secondary Compressor', type: 'compressor', visible: true },
+  { id: 'COMP-03', tag: 'COMP-03', label: 'Standby Compressor', type: 'compressor', visible: true },
+  { id: 'DRY-01', tag: 'DRY-01', label: 'Refrigerated Dryer A', type: 'dryer', visible: true },
+  { id: 'DRY-02', tag: 'DRY-02', label: 'Refrigerated Dryer B', type: 'dryer', visible: true },
+  { id: 'TK-101', tag: 'TK-101', label: 'Receiver Tank', type: 'tank', visible: true },
+  { id: 'FT-101', tag: 'FT-101', label: 'Main Header Flow', type: 'flowmeter', visible: true },
+  { id: 'FT-201', tag: 'FT-201', label: 'Weaving Flow Meter', type: 'flowmeter', visible: true },
+  { id: 'FT-202', tag: 'FT-202', label: 'Spinning Flow Meter', type: 'flowmeter', visible: true },
+  { id: 'DPT-101', tag: 'DPT-101', label: 'Differential Pressure', type: 'sensor', visible: true },
+  { id: 'OUT-WEAVING', tag: 'OUT-WEAVING', label: 'Weaving Plant', type: 'consumer', visible: true },
+  { id: 'OUT-SPINNING', tag: 'OUT-SPINNING', label: 'Spinning Plant', type: 'consumer', visible: true },
+];
+
+const DEFAULT_PIPES: PipeSegmentConfig[] = [
+  { id: 'comp1-to-header', label: 'COMP-01 to Header', colorId: 'cyan' },
+  { id: 'comp2-to-header', label: 'COMP-02 to Header', colorId: 'cyan' },
+  { id: 'comp3-to-header', label: 'COMP-03 to Header', colorId: 'cyan' },
+  { id: 'header-to-dryers', label: 'Compressor Header', colorId: 'cyan' },
+  { id: 'dryer1-to-tank', label: 'Dryer A to Tank', colorId: 'blue' },
+  { id: 'dryer2-to-tank', label: 'Dryer B to Tank', colorId: 'blue' },
+  { id: 'tank-to-main', label: 'Tank to Main Header', colorId: 'green' },
+  { id: 'main-to-weaving', label: 'Main to Weaving', colorId: 'purple' },
+  { id: 'main-to-spinning', label: 'Main to Spinning', colorId: 'orange' },
+];
+
 interface ScadaMapProps {
   telemetry: SystemTelemetry;
   onToggleCompressor: (id: string) => void;
   onSetCompressorFault: (id: string) => void;
   onToggleValve: (id: string) => void;
   onToggleDryerStatus: (id: string) => void;
+  isEditMode?: boolean;
 }
 
 export default function ScadaMap({
@@ -33,6 +67,26 @@ export default function ScadaMap({
   onToggleValve,
   onToggleDryerStatus,
 }: ScadaMapProps) {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+
+  const {
+    config, isNodeVisible, toggleNodeVisibility, deleteNode,
+    getPipeColor, setPipeColor, addNode, addPipe, restoreAll, hiddenCount,
+  } = useCanvasState('hmi-compressed-air', DEFAULT_NODES, DEFAULT_PIPES);
+
+  const V = isNodeVisible;
+  const ps = (segId: string, active: boolean) => {
+    const colorId = getPipeColor(segId);
+    const preset = PIPE_COLOR_PRESETS[colorId];
+    return {
+      core: active ? preset.core : (isDark ? '#1e293b' : '#D8E1EA'),
+      dash: active ? preset.dash : 'transparent',
+      fill: active ? preset.fill : (isDark ? '#1e293b' : '#D8E1EA'),
+      bg: isDark ? '#1e293b' : '#EBF0F6',
+    };
+  };
+
   const containerRef = React.useRef<HTMLDivElement>(null);
   const [fitScale, setFitScale] = React.useState<number | null>(null);
 
@@ -772,6 +826,7 @@ export default function ScadaMap({
         {/* 2. AIR DRYER MODULES */}
         <div className="absolute left-[300px] top-[140px] flex flex-col gap-10">
           {telemetry.dryers.map((dryer) => {
+            if (!V(dryer.id)) return null;
             const isRun = dryer.status === 'RUN';
             const isFault = dryer.status === 'FAULT';
 

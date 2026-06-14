@@ -1,9 +1,11 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
+import Link from 'next/link';
+import { Pencil } from 'lucide-react';
 import { SystemTelemetry, Alarm } from '@/types/scada';
 import Header from '@/components/Header';
-import ScadaMap from '@/components/ScadaMap';
+import MonitoringCanvas from '@/components/MonitoringCanvas';
 import RightPanel from '@/components/RightPanel';
 import { useTheme } from '@/context/ThemeContext';
 
@@ -597,7 +599,7 @@ export default function ScadaDashboard() {
 
       <main className="flex-1 flex flex-col lg:flex-row overflow-hidden relative">
         <h2 className="sr-only">HMI Graphics Panel</h2>
-        <ScadaMap
+        <MonitoringCanvas
           telemetry={telemetry}
           onToggleCompressor={toggleCompressor}
           onSetCompressorFault={forceCompressorFault}
@@ -620,13 +622,20 @@ export default function ScadaDashboard() {
       <footer className={`h-8 border-t px-6 flex items-center justify-between text-[10px] tracking-tight shrink-0 z-10 transition-colors duration-500 ${
         theme === 'dark' ? 'bg-slate-900 border-slate-800' : 'bg-slate-100 border-slate-200'
       }`}>
-        <div className="flex gap-4">
+        <div className="flex items-center gap-4">
           <span className="text-slate-500 uppercase font-mono">Session: <span className={theme === 'dark' ? 'text-slate-300' : 'text-slate-700'}>ENGINEER_SR</span></span>
           <span className="text-slate-500 uppercase font-mono">Comm: <span className="text-emerald-500">CONNECTED</span></span>
         </div>
-        <div className="flex gap-4 text-slate-600 italic font-mono text-[9px]">
-          <span>Modbus TCP @ 192.168.1.104</span>
-          <span>SCADA v4.2.1-stable</span>
+        <div className="flex items-center gap-4">
+          <Link
+            href="/compressed-air"
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded border border-blue-300 dark:border-blue-700 bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900 text-[9px] font-mono font-bold uppercase tracking-wider transition-all"
+          >
+            <Pencil className="w-3 h-3" />
+            Edit Layout
+          </Link>
+          <span className="text-slate-600 italic font-mono text-[9px]">Modbus TCP @ 192.168.1.104</span>
+          <span className="text-slate-600 italic font-mono text-[9px]">SCADA v4.2.1-stable</span>
         </div>
       </footer>
     </div>
