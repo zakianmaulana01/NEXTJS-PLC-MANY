@@ -76,12 +76,11 @@ export default function CanvasEditor({ snapToGrid }: CanvasEditorProps) {
       if (!type || !rawData) return;
 
       const item: EquipmentCatalogueItem = JSON.parse(rawData);
-      const bounds = reactFlowWrapper.current?.getBoundingClientRect();
-      if (!bounds) return;
 
+      // In @xyflow/react v12+, screenToFlowPosition expects client coordinates directly
       const position = reactFlowInstance.screenToFlowPosition({
-        x: event.clientX - bounds.left,
-        y: event.clientY - bounds.top,
+        x: event.clientX,
+        y: event.clientY,
       });
 
       const id = `${type}-${Date.now()}`;
