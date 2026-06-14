@@ -227,12 +227,20 @@ function GenericCard({ data, selected }: { data: EditorNodeData; selected?: bool
 
 // ========== SHARED HELPERS ==========
 function Handles() {
+  const handleStyle = "!w-2.5 !h-2.5 !bg-slate-400 hover:!bg-cyan-500 !border-2 !border-white dark:!border-slate-900 !rounded-full opacity-0 group-hover:opacity-100 transition-opacity";
   return (
     <>
-      <Handle type="target" position={Position.Top} id="top" className="!w-2.5 !h-2.5 !bg-slate-400 hover:!bg-cyan-500 !border-2 !border-white dark:!border-slate-900 !rounded-full !-top-1.5" />
-      <Handle type="source" position={Position.Bottom} id="bottom" className="!w-2.5 !h-2.5 !bg-slate-400 hover:!bg-cyan-500 !border-2 !border-white dark:!border-slate-900 !rounded-full !-bottom-1.5" />
-      <Handle type="target" position={Position.Left} id="left" className="!w-2.5 !h-2.5 !bg-slate-400 hover:!bg-cyan-500 !border-2 !border-white dark:!border-slate-900 !rounded-full !-left-1.5" />
-      <Handle type="source" position={Position.Right} id="right" className="!w-2.5 !h-2.5 !bg-slate-400 hover:!bg-cyan-500 !border-2 !border-white dark:!border-slate-900 !rounded-full !-right-1.5" />
+      <Handle type="target" position={Position.Top} id="target-top" className={`${handleStyle} !-top-1.5`} />
+      <Handle type="source" position={Position.Top} id="source-top" className={`${handleStyle} !-top-1.5`} />
+
+      <Handle type="target" position={Position.Bottom} id="target-bottom" className={`${handleStyle} !-bottom-1.5`} />
+      <Handle type="source" position={Position.Bottom} id="source-bottom" className={`${handleStyle} !-bottom-1.5`} />
+
+      <Handle type="target" position={Position.Left} id="target-left" className={`${handleStyle} !-left-1.5`} />
+      <Handle type="source" position={Position.Left} id="source-left" className={`${handleStyle} !-left-1.5`} />
+
+      <Handle type="target" position={Position.Right} id="target-right" className={`${handleStyle} !-right-1.5`} />
+      <Handle type="source" position={Position.Right} id="source-right" className={`${handleStyle} !-right-1.5`} />
     </>
   );
 }

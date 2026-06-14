@@ -56,24 +56,24 @@ export const DEFAULT_TEMPLATE: SavedLayout = {
   ],
   edges: [
     // Compressors → Dryer 1
-    { id: 'e-c1-d1', source: 'comp-01', target: 'dry-01', sourceHandle: 'right', targetHandle: 'left', type: 'animatedPipe', data: { flowAnimated: true, flowColor: '#06B6D4', pipeThickness: 3, flowDirection: 'forward', waypoints: [], label: '' } },
-    { id: 'e-c2-d1', source: 'comp-02', target: 'dry-01', sourceHandle: 'right', targetHandle: 'left', type: 'animatedPipe', data: { flowAnimated: false, flowColor: '#06B6D4', pipeThickness: 3, flowDirection: 'forward', waypoints: [], label: '' } },
-    { id: 'e-c3-d2', source: 'comp-03', target: 'dry-02', sourceHandle: 'right', targetHandle: 'left', type: 'animatedPipe', data: { flowAnimated: false, flowColor: '#06B6D4', pipeThickness: 3, flowDirection: 'forward', waypoints: [], label: '' } },
+    { id: 'e-c1-d1', source: 'comp-01', target: 'dry-01', sourceHandle: 'source-right', targetHandle: 'target-left', type: 'animatedPipe', data: { flowAnimated: true, flowColor: '#06B6D4', pipeThickness: 3, flowDirection: 'forward', waypoints: [], label: '' } },
+    { id: 'e-c2-d1', source: 'comp-02', target: 'dry-01', sourceHandle: 'source-right', targetHandle: 'target-left', type: 'animatedPipe', data: { flowAnimated: false, flowColor: '#06B6D4', pipeThickness: 3, flowDirection: 'forward', waypoints: [], label: '' } },
+    { id: 'e-c3-d2', source: 'comp-03', target: 'dry-02', sourceHandle: 'source-right', targetHandle: 'target-left', type: 'animatedPipe', data: { flowAnimated: false, flowColor: '#06B6D4', pipeThickness: 3, flowDirection: 'forward', waypoints: [], label: '' } },
     // Dryers → Tank
-    { id: 'e-d1-tk', source: 'dry-01', target: 'tk-101', sourceHandle: 'right', targetHandle: 'left', type: 'animatedPipe', data: { flowAnimated: true, flowColor: '#06B6D4', pipeThickness: 3, flowDirection: 'forward', waypoints: [], label: '' } },
-    { id: 'e-d2-tk', source: 'dry-02', target: 'tk-101', sourceHandle: 'right', targetHandle: 'left', type: 'animatedPipe', data: { flowAnimated: false, flowColor: '#06B6D4', pipeThickness: 3, flowDirection: 'forward', waypoints: [], label: '' } },
+    { id: 'e-d1-tk', source: 'dry-01', target: 'tk-101', sourceHandle: 'source-right', targetHandle: 'target-left', type: 'animatedPipe', data: { flowAnimated: true, flowColor: '#06B6D4', pipeThickness: 3, flowDirection: 'forward', waypoints: [], label: '' } },
+    { id: 'e-d2-tk', source: 'dry-02', target: 'tk-101', sourceHandle: 'source-right', targetHandle: 'target-left', type: 'animatedPipe', data: { flowAnimated: false, flowColor: '#06B6D4', pipeThickness: 3, flowDirection: 'forward', waypoints: [], label: '' } },
     // Tank → Valve
-    { id: 'e-tk-v', source: 'tk-101', target: 'xv-101', sourceHandle: 'right', targetHandle: 'left', type: 'animatedPipe', data: { flowAnimated: true, flowColor: '#06B6D4', pipeThickness: 3, flowDirection: 'forward', waypoints: [], label: '' } },
+    { id: 'e-tk-v', source: 'tk-101', target: 'xv-101', sourceHandle: 'source-right', targetHandle: 'target-left', type: 'animatedPipe', data: { flowAnimated: true, flowColor: '#06B6D4', pipeThickness: 3, flowDirection: 'forward', waypoints: [], label: '' } },
     // Valve → FT-101
-    { id: 'e-v-ft', source: 'xv-101', target: 'ft-101', sourceHandle: 'right', targetHandle: 'left', type: 'animatedPipe', data: { flowAnimated: true, flowColor: '#06B6D4', pipeThickness: 3, flowDirection: 'forward', waypoints: [], label: '' } },
+    { id: 'e-v-ft', source: 'xv-101', target: 'ft-101', sourceHandle: 'source-right', targetHandle: 'target-left', type: 'animatedPipe', data: { flowAnimated: true, flowColor: '#06B6D4', pipeThickness: 3, flowDirection: 'forward', waypoints: [], label: '' } },
     // FT-101 → Branch Flow Meters
-    { id: 'e-ft-201', source: 'ft-101', target: 'ft-201', sourceHandle: 'right', targetHandle: 'left', type: 'animatedPipe', data: { flowAnimated: true, flowColor: '#06B6D4', pipeThickness: 3, flowDirection: 'forward', waypoints: [], label: '' } },
-    { id: 'e-ft-202', source: 'ft-101', target: 'ft-202', sourceHandle: 'right', targetHandle: 'left', type: 'animatedPipe', data: { flowAnimated: true, flowColor: '#06B6D4', pipeThickness: 3, flowDirection: 'forward', waypoints: [], label: '' } },
+    { id: 'e-ft-201', source: 'ft-101', target: 'ft-201', sourceHandle: 'source-right', targetHandle: 'target-left', type: 'animatedPipe', data: { flowAnimated: true, flowColor: '#06B6D4', pipeThickness: 3, flowDirection: 'forward', waypoints: [], label: '' } },
+    { id: 'e-ft-202', source: 'ft-101', target: 'ft-202', sourceHandle: 'source-right', targetHandle: 'target-left', type: 'animatedPipe', data: { flowAnimated: true, flowColor: '#06B6D4', pipeThickness: 3, flowDirection: 'forward', waypoints: [], label: '' } },
     // Flow Meters → Consumer Areas
-    { id: 'e-201-weave', source: 'ft-201', target: 'weaving', sourceHandle: 'right', targetHandle: 'left', type: 'animatedPipe', data: { flowAnimated: true, flowColor: '#06B6D4', pipeThickness: 3, flowDirection: 'forward', waypoints: [], label: '' } },
-    { id: 'e-202-spin', source: 'ft-202', target: 'spinning', sourceHandle: 'right', targetHandle: 'left', type: 'animatedPipe', data: { flowAnimated: true, flowColor: '#06B6D4', pipeThickness: 3, flowDirection: 'forward', waypoints: [], label: '' } },
+    { id: 'e-201-weave', source: 'ft-201', target: 'weaving', sourceHandle: 'source-right', targetHandle: 'target-left', type: 'animatedPipe', data: { flowAnimated: true, flowColor: '#06B6D4', pipeThickness: 3, flowDirection: 'forward', waypoints: [], label: '' } },
+    { id: 'e-202-spin', source: 'ft-202', target: 'spinning', sourceHandle: 'source-right', targetHandle: 'target-left', type: 'animatedPipe', data: { flowAnimated: true, flowColor: '#06B6D4', pipeThickness: 3, flowDirection: 'forward', waypoints: [], label: '' } },
     // Boiler → Steam Flow
-    { id: 'e-boiler-ft', source: 'boiler-01', target: 'ft-hb', sourceHandle: 'right', targetHandle: 'left', type: 'animatedPipe', data: { flowAnimated: true, flowColor: '#22C55E', pipeThickness: 3, flowDirection: 'forward', waypoints: [], label: '' } },
+    { id: 'e-boiler-ft', source: 'boiler-01', target: 'ft-hb', sourceHandle: 'source-right', targetHandle: 'target-left', type: 'animatedPipe', data: { flowAnimated: true, flowColor: '#22C55E', pipeThickness: 3, flowDirection: 'forward', waypoints: [], label: '' } },
   ],
   viewport: { x: 0, y: 0, zoom: 0.85 },
   savedAt: '',
