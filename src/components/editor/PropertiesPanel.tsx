@@ -2,10 +2,10 @@
 
 import React from 'react';
 import {
-  Trash2, Copy, X, Palette,
+  Trash2, Copy, X, Palette, Plus,
 } from 'lucide-react';
 import { useEditorStore } from '@/hooks/useEditorStore';
-import type { EditorNodeData, EditorEdgeData, EquipmentType, EquipmentStatus } from '@/types/editor';
+import type { EditorNodeData, EditorEdgeData, EquipmentType, EquipmentStatus, NodeMetric } from '@/types/editor';
 import { FLOW_COLOR_PRESETS } from '@/types/editor';
 
 /* -- Equipment Type Options ------------------------- */
@@ -123,20 +123,26 @@ export default function PropertiesPanel() {
           </Section>
 
           {/* Data Binding Section */}
-          <Section title="Data Binding">
-            <Field label="OPC Tag">
+          <Section title="Data Binding (API)">
+            <Field label="API Endpoint">
+              <input value={d.apiEndpoint} onChange={(e) => update({ apiEndpoint: e.target.value })} placeholder="/api/telemetry" className="input-field" />
+            </Field>
+            <Field label="Data Source Key">
+              <input value={d.dataSourceKey || ''} onChange={(e) => update({ dataSourceKey: e.target.value })} placeholder="COMP-01" className="input-field" />
+            </Field>
+            <Field label="OPC Tag (optional)">
               <input value={d.opcTag} onChange={(e) => update({ opcTag: e.target.value })} placeholder="ns=2;s=..." className="input-field" />
             </Field>
-            <Field label="MQTT Topic">
+            <Field label="MQTT Topic (optional)">
               <input value={d.mqttTopic} onChange={(e) => update({ mqttTopic: e.target.value })} placeholder="plant/comp/01" className="input-field" />
-            </Field>
-            <Field label="API Endpoint">
-              <input value={d.apiEndpoint} onChange={(e) => update({ apiEndpoint: e.target.value })} placeholder="/api/v1/..." className="input-field" />
             </Field>
             <Field label="Static Value">
               <input value={d.staticValue} onChange={(e) => update({ staticValue: e.target.value })} placeholder="7.2 bar" className="input-field" />
             </Field>
           </Section>
+
+          {/* Custom Metrics Section */}
+          <MetricsEditor metrics={d.metrics || []} onChange={(metrics) => update({ metrics })} />
 
           {/* Styling Section */}
           <Section title="Styling">
@@ -274,6 +280,50 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
     <div className="space-y-1">
       <label className="text-[9px] font-mono font-bold text-slate-500 uppercase tracking-wider">{label}</label>
       {children}
+    </div>
+  );
+}
+
+function MetricsEditor({ metrics, onChange }: { metrics: NodeMetric[]; onChange: (m: NodeMetric[]) => void }) {
+  const add = () => {
+    onChange([
+      ...metrics,
+      { id: `m-${Date.now()}`, label: 'NEW', valueKey: '', unit: '', fallback: '0', color: 'text-slate-700 dark:text-slate-300' },
+    ]);
+  };
+  const update = (id: string, partial: Partial<NodeMetric>) => {
+    onChange(metrics.map((m) => (m.id === id ? { ...m, ...partial } : m)));
+  };
+  const remove = (id: string) => onChange(metrics.filter((m) => m.id !== id));
+
+  return (
+    <div className="border-b border-slate-100 dark:border-slate-800 px-3 py-3 space-y-2.5">
+      <div className="flex items-center justify-between">
+        <h4 className="text-[9px] font-mono font-extrabold uppercase tracking-widest text-slate-400">Custom Metrics</h4>
+        <button onClick={add} className="p-1 rounded border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-blue-500 transition" title="Add metric row">
+          <Plus className="w-3 h-3" />
+        </button>
+      </div>
+      {metrics.length === 0 && (
+        <p className="text-[9px] text-slate-400 leading-relaxed">
+          No custom rows. Default metrics are shown. Add rows to map API fields (e.g. label SPEED, key <code>loadPercent</code>, unit %).
+        </p>
+      )}
+      {metrics.map((m) => (
+        <div key={m.id} className="border border-slate-100 dark:border-slate-800 rounded p-2 space-y-1.5">
+          <div className="flex items-center gap-1.5">
+            <input value={m.label} onChange={(e) => update(m.id, { label: e.target.value })} placeholder="LABEL" className="input-field flex-1 !text-[10px]" />
+            <button onClick={() => remove(m.id)} className="p-1 text-slate-400 hover:text-rose-500" title="Remove">
+              <Trash2 className="w-3 h-3" />
+            </button>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <input value={m.valueKey} onChange={(e) => update(m.id, { valueKey: e.target.value })} placeholder="apiKey" className="input-field flex-1 !text-[10px]" />
+            <input value={m.unit} onChange={(e) => update(m.id, { unit: e.target.value })} placeholder="unit" className="input-field w-14 !text-[10px]" />
+          </div>
+          <input value={m.fallback} onChange={(e) => update(m.id, { fallback: e.target.value })} placeholder="fallback value" className="input-field !text-[10px]" />
+        </div>
+      ))}
     </div>
   );
 }

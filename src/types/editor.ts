@@ -23,6 +23,15 @@ export type EquipmentStatus = 'RUN' | 'STOP' | 'FAULT' | 'OFFLINE';
 
 /* -- Node Data -------------------------------------- */
 
+export interface NodeMetric {
+  id: string;
+  label: string;       // e.g. "SPEED", "POWER", "TEMP"
+  valueKey: string;    // key to read from API payload (e.g. "loadPercent")
+  unit: string;        // e.g. "%", "kW", "°C"
+  fallback: string;    // shown when no live data (e.g. "0")
+  color: string;       // tailwind text color class or hex
+}
+
 export interface EditorNodeData {
   [key: string]: unknown;
   tagName: string;
@@ -30,11 +39,14 @@ export interface EditorNodeData {
   equipmentType: EquipmentType;
   status: EquipmentStatus;
   icon: string;
-  // Data binding (for future OPC/MQTT integration)
+  // Data binding (for OPC/MQTT/REST integration)
   opcTag: string;
   mqttTopic: string;
-  apiEndpoint: string;
+  apiEndpoint: string;     // REST endpoint, e.g. "/api/telemetry"
+  dataSourceKey?: string;  // key inside the API payload that maps to this device, e.g. "COMP-01"
   staticValue: string;
+  // Custom display metrics (rows shown inside the node card)
+  metrics?: NodeMetric[];
   // Styling
   width: number;
   height: number;
