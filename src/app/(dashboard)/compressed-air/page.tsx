@@ -29,7 +29,7 @@ function CanvasEditorInner() {
   const reactFlow = useReactFlow();
 
   return (
-    <div className={`w-screen h-screen flex flex-col overflow-hidden transition-colors ${
+    <div className={`w-full h-full flex flex-col overflow-hidden transition-colors ${
       isDark ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'
     }`}>
       {/* Toolbar */}

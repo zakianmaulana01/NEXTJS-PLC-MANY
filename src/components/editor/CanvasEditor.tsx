@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useRef, useState, useEffect } from 'react';
+import React, { useCallback, useRef, useEffect } from 'react';
 import {
   ReactFlow,
   Background,
@@ -10,7 +10,6 @@ import {
   useReactFlow,
   type NodeTypes,
   type EdgeTypes,
-  type ReactFlowInstance,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
@@ -42,7 +41,7 @@ export default function CanvasEditor({ snapToGrid }: CanvasEditorProps) {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
-  const [rfInstance, setRfInstance] = useState<ReactFlowInstance | null>(null);
+  const reactFlowInstance = useReactFlow();
 
   const nodes = useEditorStore((s) => s.nodes);
   const edges = useEditorStore((s) => s.edges);
@@ -74,13 +73,13 @@ export default function CanvasEditor({ snapToGrid }: CanvasEditorProps) {
 
       const type = event.dataTransfer.getData('application/reactflow-type');
       const rawData = event.dataTransfer.getData('application/reactflow-data');
-      if (!type || !rawData || !rfInstance) return;
+      if (!type || !rawData) return;
 
       const item: EquipmentCatalogueItem = JSON.parse(rawData);
       const bounds = reactFlowWrapper.current?.getBoundingClientRect();
       if (!bounds) return;
 
-      const position = rfInstance.screenToFlowPosition({
+      const position = reactFlowInstance.screenToFlowPosition({
         x: event.clientX - bounds.left,
         y: event.clientY - bounds.top,
       });
@@ -112,7 +111,7 @@ export default function CanvasEditor({ snapToGrid }: CanvasEditorProps) {
       pushHistory();
       addNode(newNode);
     },
-    [rfInstance, addNode, pushHistory],
+    [reactFlowInstance, addNode, pushHistory],
   );
 
   /* -- Selection Handlers --------------------------- */
@@ -155,7 +154,6 @@ export default function CanvasEditor({ snapToGrid }: CanvasEditorProps) {
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
-        onInit={(instance) => setRfInstance(instance as unknown as ReactFlowInstance)}
         onDrop={onDrop}
         onDragOver={onDragOver}
         onNodeClick={onNodeClick}
