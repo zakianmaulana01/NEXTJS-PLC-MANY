@@ -57,7 +57,8 @@ export default function MonitoringCanvas(props: MonitoringCanvasProps) {
 
   if (hasCustomLayout()) {
     const layout = getSavedLayout();
-    if (layout) {
+    // Only use custom layout if it actually contains nodes
+    if (layout && layout.nodes && layout.nodes.length > 0) {
       return (
         <ReactFlowProvider>
           <CustomCanvas layout={layout} telemetry={props.telemetry} onToggleCompressor={props.onToggleCompressor} onSetCompressorFault={props.onSetCompressorFault} onToggleValve={props.onToggleValve} onToggleDryerStatus={props.onToggleDryerStatus} />

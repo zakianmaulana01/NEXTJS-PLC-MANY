@@ -45,6 +45,7 @@ interface EditorState {
   saveLayout: () => void;
   loadLayout: () => boolean;
   clearLayout: () => void;
+  resetToTemplate: () => void;
   // History
   pushHistory: () => void;
   undo: () => void;
@@ -246,7 +247,14 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   loadLayout: () => {
     try {
       const raw = localStorage.getItem(LAYOUT_STORAGE_KEY);
-      const layout = raw ? (JSON.parse(raw) as SavedLayout) : DEFAULT_TEMPLATE;
+      let layout: SavedLayout = DEFAULT_TEMPLATE;
+      if (raw) {
+        const parsed = JSON.parse(raw) as SavedLayout;
+        // Use saved layout only if it actually has nodes; otherwise fall back to template
+        if (parsed?.nodes && parsed.nodes.length > 0) {
+          layout = parsed;
+        }
+      }
       set({
         nodes: layout.nodes.map((n) => ({
           id: n.id,
@@ -280,6 +288,28 @@ export const useEditorStore = create<EditorState>((set, get) => ({
       // ignore
     }
     set({ nodes: [], edges: [], undoStack: [], redoStack: [] });
+  },
+
+  resetToTemplate: () => {
+    get().pushHistory();
+    set({
+      nodes: DEFAULT_TEMPLATE.nodes.map((n) => ({
+        id: n.id,
+        type: n.type || 'equipment',
+        position: n.position,
+        data: n.data,
+      })),
+      edges: DEFAULT_TEMPLATE.edges.map((e) => ({
+        id: e.id,
+        source: e.source,
+        target: e.target,
+        sourceHandle: e.sourceHandle,
+        targetHandle: e.targetHandle,
+        type: e.type || 'animatedPipe',
+        data: e.data,
+      })),
+      viewport: DEFAULT_TEMPLATE.viewport,
+    });
   },
 
   /* -- History -------------------------------------- */

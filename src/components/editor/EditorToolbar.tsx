@@ -3,7 +3,7 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import {
-  Save, Undo2, Redo2, Trash2, Copy, Grid3X3, ArrowLeft, Sun, Moon, ZoomIn, ZoomOut, Maximize2,
+  Save, Undo2, Redo2, Trash2, Copy, Grid3X3, ArrowLeft, Sun, Moon, ZoomIn, ZoomOut, Maximize2, LayoutTemplate,
 } from 'lucide-react';
 import { useEditorStore } from '@/hooks/useEditorStore';
 import { useTheme } from '@/context/ThemeContext';
@@ -35,6 +35,7 @@ export default function EditorToolbar({ snapToGrid, onToggleSnap, onZoomIn, onZo
   const removeNode = useEditorStore((s) => s.removeNode);
   const removeEdge = useEditorStore((s) => s.removeEdge);
   const duplicateNode = useEditorStore((s) => s.duplicateNode);
+  const resetToTemplate = useEditorStore((s) => s.resetToTemplate);
   const nodes = useEditorStore((s) => s.nodes);
   const edges = useEditorStore((s) => s.edges);
 
@@ -89,6 +90,8 @@ export default function EditorToolbar({ snapToGrid, onToggleSnap, onZoomIn, onZo
         <div className="h-5 w-px bg-slate-200 dark:bg-slate-700 mx-1" />
         <ToolbarButton icon={Copy} label="Duplicate" onClick={handleDuplicate} disabled={!selectedNodeId} />
         <ToolbarButton icon={Trash2} label="Delete" onClick={handleDelete} disabled={!selectedNodeId && !selectedEdgeId} danger />
+        <div className="h-5 w-px bg-slate-200 dark:bg-slate-700 mx-1" />
+        <ToolbarButton icon={LayoutTemplate} label="Load Default Template" onClick={resetToTemplate} />
         <div className="h-5 w-px bg-slate-200 dark:bg-slate-700 mx-1" />
         <ToolbarButton icon={ZoomIn} label="Zoom In" onClick={onZoomIn} />
         <ToolbarButton icon={ZoomOut} label="Zoom Out" onClick={onZoomOut} />
