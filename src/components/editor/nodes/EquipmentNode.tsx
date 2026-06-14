@@ -43,6 +43,7 @@ function EquipmentNodeInner(props: NodeProps<EquipmentNodeType>) {
 function CompressorCard({ data, selected }: { data: EditorNodeData; selected?: boolean }) {
   const isRun = data.status === 'RUN';
   const isFault = data.status === 'FAULT';
+  const hasCustom = data.metrics && data.metrics.length > 0;
   return (
     <div className={`w-[170px] bg-white dark:bg-slate-900 border rounded-none p-2 flex flex-col text-xs font-mono transition-all
       ${isFault ? 'border-l-2 border-rose-500 bg-rose-50 dark:bg-rose-950/20' : isRun ? 'border-l-2 border-emerald-500' : 'border-l-2 border-slate-300 dark:border-slate-700'}
@@ -56,10 +57,18 @@ function CompressorCard({ data, selected }: { data: EditorNodeData; selected?: b
         </div>
       </div>
       <div className="space-y-0.5 text-[10px] text-slate-700 dark:text-slate-300 mb-2">
-        <Row label="SPEED:" value={isRun ? '70%' : '0%'} />
-        <Row label="POWER:" value={isRun ? '75 kW' : '0 kW'} color="text-yellow-500" />
-        <Row label="TEMP:" value={isRun ? '76.5°C' : '22.0°C'} />
-        <Row label="FLOW:" value={isRun ? '595 Nm³' : '0 Nm³'} color="text-cyan-500" />
+        {hasCustom ? (
+          data.metrics!.map((m) => (
+            <Row key={m.id} label={`${m.label}:`} value={isRun ? `${m.fallback}${m.unit ? ' ' + m.unit : ''}` : `0${m.unit ? ' ' + m.unit : ''}`} color={m.color} />
+          ))
+        ) : (
+          <>
+            <Row label="SPEED:" value={isRun ? '70%' : '0%'} />
+            <Row label="POWER:" value={isRun ? '75 kW' : '0 kW'} color="text-yellow-500" />
+            <Row label="TEMP:" value={isRun ? '76.5°C' : '22.0°C'} />
+            <Row label="FLOW:" value={isRun ? '595 Nm³' : '0 Nm³'} color="text-cyan-500" />
+          </>
+        )}
       </div>
       <div className="flex items-center gap-1">
         <button className={`flex-1 py-1 font-mono font-bold text-[9px] uppercase border text-center transition ${isRun ? 'border-emerald-300 dark:border-emerald-800 text-emerald-500' : 'border-slate-200 dark:border-slate-800 text-slate-400'}`}>
@@ -143,7 +152,7 @@ function FlowMeterCard({ data, selected }: { data: EditorNodeData; selected?: bo
         <span className="text-[9px] text-slate-400 uppercase tracking-widest font-bold">FLOW METER</span>
       </div>
       <div className="flex items-baseline justify-center gap-1 mb-1.5 bg-slate-50 dark:bg-slate-900/50 py-1.5 rounded">
-        <span className="text-lg font-bold text-cyan-500 leading-none">{data.staticValue || '850'}</span>
+        <span className={`text-lg font-bold leading-none ${isRun ? 'text-cyan-500' : 'text-slate-400'}`}>{isRun ? (data.staticValue || '850') : '0'}</span>
         <span className="text-[8px] text-slate-400 font-bold">Nm³/h</span>
       </div>
       <button className={`w-full py-1 font-mono font-bold text-[9px] uppercase border text-center transition flex items-center justify-center gap-1

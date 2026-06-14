@@ -77,57 +77,61 @@ function CustomCanvas({ layout, telemetry, onToggleCompressor, onSetCompressorFa
   const { theme } = useTheme();
   const isDark = theme === 'dark';
 
-  // Map real telemetry data to the saved nodes
-  // We match by equipmentType, or just assign random "live" looks.
-  // For a true SCADA, we would match by `opcTag` or `tagName`.
+  // Map real telemetry data to the saved nodes, matched by tagName
   const nodes = useMemo(() => {
     return layout.nodes.map((node) => {
       const data = { ...node.data };
-      
-      // Basic dynamic binding based on equipmentType
+      const tag = data.tagName;
+
       if (data.equipmentType === 'compressor') {
-        const comp = telemetry.compressors[0]; // Just use first for demo
+        const comp = telemetry.compressors.find((c) => c.tag === tag) || telemetry.compressors[0];
         if (comp) {
           data.status = comp.status;
           data.staticValue = `${comp.dischargePressure.toFixed(1)} bar`;
         }
       } else if (data.equipmentType === 'dryer') {
-        const dryer = telemetry.dryers[0];
+        const dryer = telemetry.dryers.find((dd) => dd.tag === tag) || telemetry.dryers[0];
         if (dryer) {
           data.status = dryer.status;
           data.staticValue = `${dryer.dewPoint.toFixed(1)} °C`;
         }
       } else if (data.equipmentType === 'buffer-tank' || data.equipmentType === 'receiver-tank') {
+        data.status = 'RUN';
         data.staticValue = `${telemetry.tank.pressure.toFixed(1)} bar`;
       } else if (data.equipmentType === 'valve') {
-        const valveKey = Object.keys(telemetry.valves)[0];
+        const valveKey = Object.keys(telemetry.valves).find((k) => telemetry.valves[k].tag === tag) || Object.keys(telemetry.valves)[0];
         if (valveKey) {
-          const valve = telemetry.valves[valveKey];
-          data.status = valve.open ? 'RUN' : 'STOP';
+          data.status = telemetry.valves[valveKey].open ? 'RUN' : 'STOP';
         }
       } else if (data.equipmentType === 'flow-meter') {
-        data.staticValue = `${telemetry.branches[0]?.flow.toFixed(0)} Nm³/h`;
+        // Map by tag: FT-201 weaving, FT-202 spinning, else header
+        let flow = telemetry.header.flow;
+        if (tag === 'FT-201') flow = telemetry.branches.weaving.flow;
+        else if (tag === 'FT-202') flow = telemetry.branches.spinning.flow;
+        data.status = flow > 0 ? 'RUN' : 'STOP';
+        data.staticValue = `${flow.toFixed(0)}`;
+      } else if (data.equipmentType === 'pressure-transmitter') {
+        data.status = 'RUN';
+        data.staticValue = `${telemetry.header.pressure.toFixed(2)} bar`;
       }
 
-      return {
-        ...node,
-        data,
-      };
+      return { ...node, data };
     });
   }, [layout.nodes, telemetry]);
 
-  // Dynamic edges with animated flow when system is running
+  // Edges grey + static when source is not RUN
   const edges = useMemo(() => {
+    const statusById = new Map(nodes.map((n) => [n.id, n.data.status]));
     return layout.edges.map((edge) => {
-      const sourceNode = nodes.find(n => n.id === edge.source);
-      const targetNode = nodes.find(n => n.id === edge.target);
-      const isActive = sourceNode?.data.status === 'RUN' || targetNode?.data.status === 'RUN';
+      const sourceStatus = statusById.get(edge.source);
+      const flowing = sourceStatus === 'RUN';
       return {
         ...edge,
-        animated: isActive,
+        animated: flowing,
         data: {
           ...edge.data,
-          flowAnimated: isActive,
+          flowAnimated: flowing,
+          flowColor: flowing ? (edge.data?.flowColor || '#06B6D4') : '#94a3b8',
         },
       };
     });
