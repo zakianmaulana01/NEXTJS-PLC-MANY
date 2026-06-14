@@ -58,7 +58,7 @@ export default function MonitoringCanvas(props: MonitoringCanvasProps) {
     if (layout) {
       return (
         <ReactFlowProvider>
-          <CustomCanvas layout={layout} telemetry={props.telemetry} />
+          <CustomCanvas layout={layout} telemetry={props.telemetry} onToggleCompressor={props.onToggleCompressor} onSetCompressorFault={props.onSetCompressorFault} onToggleValve={props.onToggleValve} onToggleDryerStatus={props.onToggleDryerStatus} />
         </ReactFlowProvider>
       );
     }
@@ -70,7 +70,7 @@ export default function MonitoringCanvas(props: MonitoringCanvasProps) {
 
 /* ── Custom Canvas (React Flow) ───────────────────── */
 
-function CustomCanvas({ layout, telemetry }: { layout: SavedLayout; telemetry: SystemTelemetry }) {
+function CustomCanvas({ layout, telemetry, onToggleCompressor, onSetCompressorFault, onToggleValve, onToggleDryerStatus }: { layout: SavedLayout; telemetry: SystemTelemetry, onToggleCompressor: (id: string) => void; onSetCompressorFault: (id: string) => void; onToggleValve: (id: string) => void; onToggleDryerStatus: (id: string) => void; }) {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
 
@@ -113,17 +113,50 @@ function CustomCanvas({ layout, telemetry }: { layout: SavedLayout; telemetry: S
     });
   }, [layout.nodes, telemetry]);
 
+  // Dynamic edges with animated flow when system is running
+  const edges = useMemo(() => {
+    return layout.edges.map((edge) => {
+      const sourceNode = nodes.find(n => n.id === edge.source);
+      const targetNode = nodes.find(n => n.id === edge.target);
+      const isActive = sourceNode?.data.status === 'RUN' || targetNode?.data.status === 'RUN';
+      return {
+        ...edge,
+        animated: isActive,
+        data: {
+          ...edge.data,
+          flowAnimated: isActive,
+        },
+      };
+    });
+  }, [layout.edges, nodes]);
+
+  const handleNodeClick = (_event: React.MouseEvent, node: import('@xyflow/react').Node) => {
+    const data = node.data as unknown as EditorNodeData;
+    const { equipmentType, tagName } = data;
+    if (equipmentType === 'compressor') {
+      const comp = telemetry.compressors.find(c => c.tag === tagName) || telemetry.compressors[0];
+      if (comp) onToggleCompressor(comp.id);
+    } else if (equipmentType === 'dryer') {
+      const dryer = telemetry.dryers.find(d => d.tag === tagName) || telemetry.dryers[0];
+      if (dryer) onToggleDryerStatus(dryer.id);
+    } else if (equipmentType === 'valve') {
+      const valveKey = Object.keys(telemetry.valves).find(k => telemetry.valves[k].tag === tagName) || Object.keys(telemetry.valves)[0];
+      if (valveKey) onToggleValve(valveKey);
+    }
+  };
+
   return (
     <div className="flex-1 h-full w-full relative bg-slate-50 dark:bg-slate-950">
       <ReactFlow
         nodes={nodes}
-        edges={layout.edges}
+        edges={edges}
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
         defaultViewport={layout.viewport}
         nodesDraggable={false}
         nodesConnectable={false}
         elementsSelectable={true}
+        onNodeClick={handleNodeClick}
         proOptions={{ hideAttribution: true }}
       >
         <Background
