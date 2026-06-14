@@ -247,14 +247,13 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   loadLayout: () => {
     try {
       const raw = localStorage.getItem(LAYOUT_STORAGE_KEY);
-      let layout: SavedLayout = DEFAULT_TEMPLATE;
-      if (raw) {
-        const parsed = JSON.parse(raw) as SavedLayout;
-        // Use saved layout only if it actually has nodes; otherwise fall back to template
-        if (parsed?.nodes && parsed.nodes.length > 0) {
-          layout = parsed;
-        }
+      // Option B: do NOT auto-load template. Only load what the user saved.
+      // Empty canvas will show a "Load Template" button instead.
+      if (!raw) {
+        set({ nodes: [], edges: [], undoStack: [], redoStack: [] });
+        return false;
       }
+      const layout = JSON.parse(raw) as SavedLayout;
       set({
         nodes: layout.nodes.map((n) => ({
           id: n.id,

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useCallback, useRef, useEffect } from 'react';
+import { LayoutTemplate } from 'lucide-react';
 import {
   ReactFlow,
   Background,
@@ -56,6 +57,8 @@ export default function CanvasEditor({ snapToGrid }: CanvasEditorProps) {
   const setViewport = useEditorStore((s) => s.setViewport);
   const pushHistory = useEditorStore((s) => s.pushHistory);
   const loadLayout = useEditorStore((s) => s.loadLayout);
+  const resetToTemplate = useEditorStore((s) => s.resetToTemplate);
+  const updateNodeData = useEditorStore((s) => s.updateNodeData);
 
   // Load saved layout on mount
   useEffect(() => {
@@ -140,6 +143,18 @@ export default function CanvasEditor({ snapToGrid }: CanvasEditorProps) {
     [setSelectedNode],
   );
 
+  // Double-click toggles RUN/STOP — quick simulate on/off of flow
+  const onNodeDoubleClick = useCallback(
+    (_event: React.MouseEvent, node: EditorNode) => {
+      const data = node.data;
+      if (data.equipmentType === 'section-label') return;
+      const next = data.status === 'RUN' ? 'STOP' : 'RUN';
+      pushHistory();
+      updateNodeData(node.id, { status: next });
+    },
+    [pushHistory, updateNodeData],
+  );
+
   const onEdgeClick = useCallback(
     (_event: React.MouseEvent, edge: { id: string }) => {
       setSelectedEdge(edge.id);
@@ -163,17 +178,37 @@ export default function CanvasEditor({ snapToGrid }: CanvasEditorProps) {
     pushHistory();
   }, [pushHistory]);
 
+  /* -- Derived edges: grey + no animation when flow is stopped -- */
+  const displayEdges = React.useMemo(() => {
+    const statusById = new Map(nodes.map((n) => [n.id, n.data?.status]));
+    return edges.map((edge) => {
+      const sourceStatus = statusById.get(edge.source);
+      const targetStatus = statusById.get(edge.target);
+      const flowing = sourceStatus === 'RUN' && targetStatus !== 'OFFLINE';
+      return {
+        ...edge,
+        data: {
+          ...edge.data,
+          flowAnimated: flowing ? (edge.data?.flowAnimated ?? true) : false,
+          // grey when not flowing, original color when flowing
+          flowColor: flowing ? (edge.data?.flowColor || '#06B6D4') : '#94a3b8',
+        },
+      };
+    });
+  }, [nodes, edges]);
+
   return (
     <div ref={reactFlowWrapper} className="flex-1 h-full">
       <ReactFlow
         nodes={nodes}
-        edges={edges}
+        edges={displayEdges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         onDrop={onDrop}
         onDragOver={onDragOver}
         onNodeClick={onNodeClick}
+        onNodeDoubleClick={onNodeDoubleClick}
         onEdgeClick={onEdgeClick}
         onPaneClick={onPaneClick}
         onMoveEnd={onMoveEnd}
@@ -223,6 +258,28 @@ export default function CanvasEditor({ snapToGrid }: CanvasEditorProps) {
           zoomable
         />
       </ReactFlow>
+
+      {/* Empty State — Option B: user clicks to load template */}
+      {nodes.length === 0 && (
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <div className="pointer-events-auto text-center bg-white/90 dark:bg-slate-900/90 backdrop-blur border border-slate-200 dark:border-slate-700 rounded-2xl px-10 py-8 shadow-xl">
+            <div className="w-14 h-14 rounded-2xl bg-blue-50 dark:bg-blue-950 flex items-center justify-center mx-auto mb-4">
+              <LayoutTemplate className="w-7 h-7 text-blue-500" />
+            </div>
+            <h3 className="text-sm font-bold text-slate-700 dark:text-slate-200">Canvas Kosong</h3>
+            <p className="text-xs text-slate-400 mt-1 mb-5 max-w-[260px]">
+              Mulai dari template default (mirip dashboard monitoring), atau drag equipment dari panel kiri.
+            </p>
+            <button
+              onClick={() => resetToTemplate()}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-white text-xs font-mono font-bold uppercase tracking-wider transition"
+            >
+              <LayoutTemplate className="w-4 h-4" />
+              Load Default Template
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
