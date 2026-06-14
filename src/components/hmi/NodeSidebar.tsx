@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Trash2,
   Eye,
@@ -100,6 +101,7 @@ export default function NodeSidebar({
 
   const [nodesOpen, setNodesOpen] = React.useState(true);
   const [pipesOpen, setPipesOpen] = React.useState(true);
+  const router = useRouter();
   const [savedFeedback, setSavedFeedback] = React.useState(false);
 
   // Group nodes by type
@@ -116,7 +118,10 @@ export default function NodeSidebar({
   const handleSave = () => {
     // State is already auto-saved to localStorage by the hook
     setSavedFeedback(true);
-    setTimeout(() => setSavedFeedback(false), 2000);
+    setTimeout(() => {
+      setSavedFeedback(false);
+      router.push('/');
+    }, 500);
   };
 
   const handleAddNode = () => {
