@@ -14,6 +14,7 @@ import {
 import '@xyflow/react/dist/style.css';
 
 import { EquipmentNode } from '@/components/editor/nodes/EquipmentNode';
+import { SectionLabelNode } from '@/components/editor/nodes/SectionLabelNode';
 import { AnimatedPipeEdge } from '@/components/editor/edges/AnimatedPipeEdge';
 import { useLayoutPersistence } from '@/hooks/useLayoutPersistence';
 import ScadaMap from '@/components/ScadaMap';
@@ -25,6 +26,7 @@ import type { EditorNodeData, SavedLayout } from '@/types/editor';
 
 const nodeTypes: NodeTypes = {
   equipment: EquipmentNode,
+  sectionLabel: SectionLabelNode,
 };
 
 const edgeTypes: EdgeTypes = {

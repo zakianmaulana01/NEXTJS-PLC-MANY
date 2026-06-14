@@ -15,6 +15,7 @@ import '@xyflow/react/dist/style.css';
 
 import { useEditorStore, type EditorNode } from '@/hooks/useEditorStore';
 import { EquipmentNode } from '@/components/editor/nodes/EquipmentNode';
+import { SectionLabelNode } from '@/components/editor/nodes/SectionLabelNode';
 import { AnimatedPipeEdge } from '@/components/editor/edges/AnimatedPipeEdge';
 import type { EquipmentCatalogueItem, EditorNodeData } from '@/types/editor';
 import { useTheme } from '@/context/ThemeContext';
@@ -23,6 +24,7 @@ import { useTheme } from '@/context/ThemeContext';
 
 const nodeTypes: NodeTypes = {
   equipment: EquipmentNode,
+  sectionLabel: SectionLabelNode,
 };
 
 const edgeTypes: EdgeTypes = {
@@ -84,6 +86,22 @@ export default function CanvasEditor({ snapToGrid }: CanvasEditorProps) {
       });
 
       const id = `${type}-${Date.now()}`;
+
+      // Section labels use a different node type
+      if (type === 'section-label') {
+        const labelNode = {
+          id,
+          type: 'sectionLabel',
+          position,
+          data: {
+            label: 'SECTION LABEL',
+            fontSize: 12,
+          },
+        };
+        pushHistory();
+        addNode(labelNode as unknown as EditorNode);
+        return;
+      }
 
       const newNode: EditorNode = {
         id,

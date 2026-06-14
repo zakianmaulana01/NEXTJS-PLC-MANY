@@ -5,6 +5,7 @@ import type { Node, Edge, Viewport, OnNodesChange, OnEdgesChange, Connection } f
 import { applyNodeChanges, applyEdgeChanges, addEdge } from '@xyflow/react';
 import type { EditorNodeData, EditorEdgeData, SavedLayout, PipeWaypoint } from '@/types/editor';
 import { LAYOUT_STORAGE_KEY } from '@/types/editor';
+import { DEFAULT_TEMPLATE } from '@/lib/default-template';
 
 /* -- Types ------------------------------------------ */
 
@@ -245,8 +246,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   loadLayout: () => {
     try {
       const raw = localStorage.getItem(LAYOUT_STORAGE_KEY);
-      if (!raw) return false;
-      const layout = JSON.parse(raw) as SavedLayout;
+      const layout = raw ? (JSON.parse(raw) as SavedLayout) : DEFAULT_TEMPLATE;
       set({
         nodes: layout.nodes.map((n) => ({
           id: n.id,

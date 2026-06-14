@@ -16,6 +16,7 @@ export type EquipmentType =
   | 'temperature-sensor'
   | 'boiler'
   | 'consumer-area'
+  | 'section-label'
   | 'custom';
 
 export type EquipmentStatus = 'RUN' | 'STOP' | 'FAULT' | 'OFFLINE';
@@ -120,6 +121,7 @@ export const EQUIPMENT_CATALOGUE: EquipmentCatalogueItem[] = [
   // Output
   { type: 'consumer-area', label: 'Consumer Area', icon: 'Factory', category: 'custom', defaultWidth: 180, defaultHeight: 100, defaultColor: '#E0E0E0', defaultBorderColor: '#616161' },
   { type: 'custom', label: 'Custom Equipment', icon: 'Box', category: 'custom', defaultWidth: 140, defaultHeight: 90, defaultColor: '#F5F5F5', defaultBorderColor: '#9E9E9E' },
+  { type: 'section-label' as EquipmentType, label: 'Section Label', icon: 'Type', category: 'custom', defaultWidth: 200, defaultHeight: 30, defaultColor: 'transparent', defaultBorderColor: 'transparent' },
 ];
 
 /* -- Flow Color Presets ----------------------------- */
