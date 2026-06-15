@@ -108,15 +108,43 @@ function DryerCard({ data, selected }: { data: EditorNodeData; selected?: boolea
 
 // ========== TANK ==========
 function TankCard({ data, selected }: { data: EditorNodeData; selected?: boolean }) {
+  const waterLevel = 25;
+  const tankHeight = 140;
+  const waterHeight = (waterLevel / 100) * tankHeight;
   return (
     <div className={`w-[90px] flex flex-col items-center ${selected ? 'ring-2 ring-blue-500 rounded' : ''}`}>
       <Handles />
-      <div className="w-[60px] h-[140px] rounded-[30px] border-2 border-slate-400 dark:border-slate-600 bg-gradient-to-b from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900 relative overflow-hidden flex flex-col items-center justify-center">
-        <span className="text-[9px] font-mono font-extrabold text-slate-400 tracking-widest absolute top-3">{data.tagName}</span>
-        {/* Water fill */}
-        <div className="absolute bottom-0 left-0 right-0 h-[25%] bg-gradient-to-t from-sky-500/80 to-sky-400/60" />
-        <span className="text-[10px] font-mono font-bold text-sky-400 relative z-10 mt-12">{data.staticValue || '7.2 bar'}</span>
-      </div>
+      <svg width="70" height={180} viewBox="0 0 70 180" className="drop-shadow-lg">
+        <defs>
+          <linearGradient id="gradient-tank-light-editor" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#e2e8f0" />
+            <stop offset="30%" stopColor="#f8fafc" />
+            <stop offset="70%" stopColor="#f1f5f9" />
+            <stop offset="100%" stopColor="#cbd5e1" />
+          </linearGradient>
+          <linearGradient id="gradient-tank-dark-editor" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#1e293b" />
+            <stop offset="30%" stopColor="#475569" />
+            <stop offset="70%" stopColor="#334155" />
+            <stop offset="100%" stopColor="#0f172a" />
+          </linearGradient>
+          <linearGradient id="gradient-water-editor" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.8" />
+            <stop offset="100%" stopColor="#0284c7" stopOpacity="0.95" />
+          </linearGradient>
+        </defs>
+        <rect x="0" y="0" width="70" height="180" rx="35" fill="#cbd5e1" opacity="0.6" />
+        <rect x="0" y="0" width="70" height="180" rx="35" fill="url(#gradient-tank-light-editor)" stroke="#94a3b8" strokeWidth="2.5" className="dark:fill-[url(#gradient-tank-dark-editor)] dark:stroke-slate-600" />
+        <line x1="0" y1="50" x2="70" y2="50" className="stroke-slate-400 dark:stroke-slate-700" strokeWidth="1.5" />
+        <line x1="0" y1="130" x2="70" y2="130" className="stroke-slate-400 dark:stroke-slate-700" strokeWidth="1.5" />
+        <rect x="25" y="40" width="20" height="100" rx="4" fill="#1e293b" stroke="#475569" className="dark:fill-[#090d16] dark:stroke-[#1e293b]" />
+        <rect x="25" y={40 + (100 - waterLevel)} width="20" height={waterLevel} rx="2" fill="url(#gradient-water-editor)" className="shadow-[0_0_8px_rgba(56,189,248,0.4)]" />
+        <line x1="21" y1="50" x2="25" y2="50" stroke="#475569" strokeWidth="1" />
+        <line x1="21" y1="90" x2="25" y2="90" stroke="#475569" strokeWidth="1" />
+        <line x1="21" y1="130" x2="25" y2="130" stroke="#475569" strokeWidth="1" />
+        <text x="35" y="28" fill="#94a3b8" className="font-mono text-[10px] font-extrabold tracking-widest uppercase" textAnchor="middle">{data.tagName}</text>
+        <text x="35" y="162" fill="#38bdf8" className="font-mono text-[10.5px] font-bold" textAnchor="middle">{data.staticValue || '7.2 bar'}</text>
+      </svg>
     </div>
   );
 }
@@ -168,18 +196,55 @@ function BoilerCard({ data, selected }: { data: EditorNodeData; selected?: boole
   return (
     <div className={`w-[120px] flex flex-col items-center gap-1 ${selected ? 'ring-2 ring-blue-500 rounded p-1' : 'p-1'}`}>
       <Handles />
-      <div className="w-[100px] h-[130px] relative">
-        <svg viewBox="0 0 120 160" className="w-full h-full">
-          <path d="M 0 160 L 120 160 L 120 60 A 60 60 0 0 0 0 60 Z" className="fill-slate-200 dark:fill-slate-800 stroke-slate-400 dark:stroke-slate-600" strokeWidth="2.5" />
-          <rect x="40" y="55" width="40" height="65" rx="20" className="fill-slate-800 dark:fill-slate-950 stroke-slate-500" strokeWidth="1.5" />
-          <rect x="40" y="80" width="40" height="40" rx="10" className="fill-sky-500/70" />
-          <g transform="translate(30, 130)">
-            <rect x="0" y="0" width="60" height="20" rx="10" className="fill-slate-900 stroke-slate-500" strokeWidth="1.5" />
-            <path d="M 10,6 L 50,6 M 10,10 L 50,10 M 10,14 L 50,14" className="stroke-orange-400" strokeWidth="2" strokeLinecap="round" />
+      <svg width="120" height="160" viewBox="0 0 120 160" className="drop-shadow-lg">
+        <defs>
+          <linearGradient id="gradient-boiler-light-editor" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#e2e8f0" />
+            <stop offset="30%" stopColor="#f8fafc" />
+            <stop offset="70%" stopColor="#f1f5f9" />
+            <stop offset="100%" stopColor="#cbd5e1" />
+          </linearGradient>
+          <linearGradient id="gradient-boiler-dark-editor" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#1e293b" />
+            <stop offset="30%" stopColor="#475569" />
+            <stop offset="70%" stopColor="#334155" />
+            <stop offset="100%" stopColor="#0f172a" />
+          </linearGradient>
+          <linearGradient id="gradient-water-boiler-editor" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.8" />
+            <stop offset="100%" stopColor="#0284c7" stopOpacity="0.95" />
+          </linearGradient>
+          <filter id="glow-heavy-editor" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="5" result="blur" />
+            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+          </filter>
+        </defs>
+        <path d="M 0 160 L 120 160 L 120 60 A 60 60 0 0 0 0 60 Z" fill="#cbd5e1" opacity="0.6" filter="url(#glow-heavy-editor)" />
+        <path d="M 0 160 L 120 160 L 120 60 A 60 60 0 0 0 0 60 Z" fill="url(#gradient-boiler-light-editor)" stroke="#94a3b8" strokeWidth="2.5" className="dark:fill-[url(#gradient-boiler-dark-editor)] dark:stroke-slate-600" />
+        <text x="60" y="35" fill="#94a3b8" className="font-mono text-[12px] font-extrabold tracking-widest uppercase" textAnchor="middle">BOILER</text>
+        <rect x="40" y="55" width="40" height="65" rx="20" fill="#1e293b" stroke="#475569" strokeWidth="1.5" className="dark:fill-[#090d16] dark:stroke-[#1e293b]" />
+        <clipPath id="boiler-window-clip-editor">
+          <rect x="40" y="55" width="40" height="65" rx="20" />
+        </clipPath>
+        <g clipPath="url(#boiler-window-clip-editor)">
+          <rect x="40" y="55" width="40" height="65" fill="#1e293b" className="dark:fill-[#090d16]" />
+          <path fill="url(#gradient-water-boiler-editor)" opacity="0.9">
+            <animate attributeName="d" values="M0,80 Q30,70 60,80 T120,80 L120,130 L0,130 Z; M0,80 Q30,90 60,80 T120,80 L120,130 L0,130 Z; M0,80 Q30,70 60,80 T120,80 L120,130 L0,130 Z" dur="3s" repeatCount="indefinite" />
+          </path>
+          <path fill="#0284c7" opacity="0.6">
+            <animate attributeName="d" values="M0,83 Q30,93 60,83 T120,83 L120,130 L0,130 Z; M0,83 Q30,73 60,83 T120,83 L120,130 L0,130 Z; M0,83 Q30,93 60,83 T120,83 L120,130 L0,130 Z" dur="4s" repeatCount="indefinite" />
+          </path>
+        </g>
+        <rect x="43" y="58" width="8" height="59" rx="4" fill="#ffffff" opacity="0.1" />
+        <g transform="translate(30, 130)">
+          <rect x="0" y="0" width="60" height="20" rx="10" fill="#1a0f00" stroke="#475569" strokeWidth="1.5" className="dark:stroke-[#334155]" />
+          <g className="animate-pulse">
+            <path d="M 10,6 L 50,6 M 10,10 L 50,10 M 10,14 L 50,14" className="stroke-orange-600 blur-[2px]" strokeWidth="5" strokeLinecap="round" />
+            <path d="M 10,6 L 50,6 M 10,10 L 50,10 M 10,14 L 50,14" className="stroke-orange-500 blur-[1px]" strokeWidth="3" strokeLinecap="round" />
+            <path d="M 10,6 L 50,6 M 10,10 L 50,10 M 10,14 L 50,14" className="stroke-orange-300" strokeWidth="1.5" strokeLinecap="round" />
           </g>
-        </svg>
-      </div>
-      <span className="text-[10px] font-mono font-extrabold text-slate-400 uppercase tracking-widest">{data.displayName || 'BOILER'}</span>
+        </g>
+      </svg>
     </div>
   );
 }
