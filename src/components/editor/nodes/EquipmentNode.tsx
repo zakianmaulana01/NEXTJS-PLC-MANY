@@ -340,11 +340,11 @@ function GenericCard({ data, selected }: { data: EditorNodeData; selected?: bool
 
 // ========== SHARED HELPERS ==========
 function Handles({ selected }: { selected?: boolean }) {
-  const connecting = useEditorStore((s) => s.connecting);
+  const selectedNodeId = useEditorStore((s) => s.selectedNodeId);
   const handleStyle = "!w-3 !h-3 !bg-cyan-400 hover:!bg-cyan-500 !border-2 !border-white dark:!border-slate-900 !rounded-full transition-all cursor-crosshair";
   const hiddenStyle = "!opacity-0";
   const visibleStyle = "!opacity-80 hover:!opacity-100";
-  const baseStyle = selected || connecting ? visibleStyle : hiddenStyle;
+  const baseStyle = selected || selectedNodeId ? visibleStyle : hiddenStyle;
   return (
     <>
       <Handle type="target" position={Position.Top} id="target-top" className={`${handleStyle} ${baseStyle} !-top-1.5`} />
