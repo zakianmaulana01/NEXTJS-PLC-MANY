@@ -339,7 +339,7 @@ function GenericCard({ data, selected }: { data: EditorNodeData; selected?: bool
 
 // ========== SHARED HELPERS ==========
 function Handles() {
-  const handleStyle = "!w-2.5 !h-2.5 !bg-slate-400 hover:!bg-cyan-500 !border-2 !border-white dark:!border-slate-900 !rounded-full opacity-0 group-hover:opacity-100 transition-opacity";
+  const handleStyle = "!w-3 !h-3 !bg-cyan-400 hover:!bg-cyan-500 !border-2 !border-white dark:!border-slate-900 !rounded-full !opacity-80 hover:!opacity-100 transition-all cursor-crosshair";
   return (
     <>
       <Handle type="target" position={Position.Top} id="target-top" className={`${handleStyle} !-top-1.5`} />
