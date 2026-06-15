@@ -29,6 +29,8 @@ function EquipmentNodeInner(props: NodeProps<EquipmentNodeType>) {
       return <FlowMeterCard data={data} selected={selected} />;
     case 'boiler':
       return <BoilerCard data={data} selected={selected} />;
+    case 'header-boiler':
+      return <HeaderBoilerCard data={data} selected={selected} />;
     case 'pressure-transmitter':
     case 'temperature-sensor':
       return <SensorBadge data={data} selected={selected} />;
@@ -244,6 +246,51 @@ function BoilerCard({ data, selected }: { data: EditorNodeData; selected?: boole
             <path d="M 10,6 L 50,6 M 10,10 L 50,10 M 10,14 L 50,14" className="stroke-orange-300" strokeWidth="1.5" strokeLinecap="round" />
           </g>
         </g>
+      </svg>
+    </div>
+  );
+}
+
+// ========== HEADER BOILER ==========
+function HeaderBoilerCard({ data, selected }: { data: EditorNodeData; selected?: boolean }) {
+  const angles = [0, 45, 90, 135, 180, 225, 270, 315];
+  return (
+    <div className={`w-[110px] flex flex-col items-center gap-1 ${selected ? 'ring-2 ring-blue-500 rounded p-1' : 'p-1'}`}>
+      <Handles />
+      <svg width="100" height="90" viewBox="0 0 100 90" className="drop-shadow-lg">
+        <defs>
+          <linearGradient id="gradient-hb-light-editor" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#e2e8f0" />
+            <stop offset="30%" stopColor="#f8fafc" />
+            <stop offset="70%" stopColor="#f1f5f9" />
+            <stop offset="100%" stopColor="#cbd5e1" />
+          </linearGradient>
+          <linearGradient id="gradient-hb-dark-editor" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#1e293b" />
+            <stop offset="30%" stopColor="#475569" />
+            <stop offset="70%" stopColor="#334155" />
+            <stop offset="100%" stopColor="#0f172a" />
+          </linearGradient>
+          <filter id="glow-hb-editor" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="5" result="blur" />
+            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+          </filter>
+        </defs>
+        <rect x="0" y="0" width="100" height="50" rx="25" fill="#cbd5e1" opacity="0.6" filter="url(#glow-hb-editor)" />
+        <rect x="0" y="0" width="100" height="50" rx="25" fill="url(#gradient-hb-light-editor)" stroke="#94a3b8" strokeWidth="2.5" className="dark:fill-[url(#gradient-hb-dark-editor)] dark:stroke-slate-600" />
+        <line x1="22" y1="0" x2="22" y2="50" className="stroke-slate-400 dark:stroke-slate-700" strokeWidth="1.5" />
+        <line x1="78" y1="0" x2="78" y2="50" className="stroke-slate-400 dark:stroke-slate-700" strokeWidth="1.5" />
+        <circle cx="50" cy="25" r="10" fill="#e2e8f0" stroke="#94a3b8" strokeWidth="1.5" className="dark:fill-slate-700 dark:stroke-slate-600" />
+        <circle cx="50" cy="25" r="3.5" fill="#cbd5e1" stroke="#94a3b8" strokeWidth="1" className="dark:fill-slate-800 dark:stroke-slate-500" />
+        {angles.map((angle) => {
+          const rad = (angle * Math.PI) / 180;
+          const bx = 50 + 7 * Math.cos(rad);
+          const by = 25 + 7 * Math.sin(rad);
+          return <circle key={angle} cx={bx} cy={by} r="0.5" fill="#94a3b8" className="dark:fill-slate-400" />;
+        })}
+        <rect x="20" y="50" width="8" height="12" fill="#94a3b8" stroke="#94a3b8" strokeWidth="1" className="dark:fill-slate-800 dark:stroke-slate-700" />
+        <rect x="72" y="50" width="8" height="12" fill="#94a3b8" stroke="#94a3b8" strokeWidth="1" className="dark:fill-slate-800 dark:stroke-slate-700" />
+        <text x="50" y="80" fill="#94a3b8" className="font-mono text-[10px] font-extrabold tracking-widest uppercase" textAnchor="middle">{data.tagName || 'HEADER BOILER'}</text>
       </svg>
     </div>
   );

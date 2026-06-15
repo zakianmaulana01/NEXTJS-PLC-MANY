@@ -52,6 +52,9 @@ export const DEFAULT_TEMPLATE: SavedLayout = {
 
     // Boiler section
     { id: 'boiler-01', type: 'equipment', position: { x: 100, y: 550 }, data: { tagName: 'BOILER-01', displayName: 'Boiler', equipmentType: 'boiler', status: 'RUN', icon: 'Flame', opcTag: '', mqttTopic: '', apiEndpoint: '', staticValue: '', width: 120, height: 160, color: '#FFF3E0', borderColor: '#EF6C00', glowEffect: false } },
+    { id: 'header-boiler-01', type: 'equipment', position: { x: 450, y: 550 }, data: { tagName: 'HB-01', displayName: 'Header Boiler', equipmentType: 'header-boiler', status: 'RUN', icon: 'Gauge', opcTag: '', mqttTopic: '', apiEndpoint: '', staticValue: '', width: 110, height: 90, color: '#FFF3E0', borderColor: '#EF6C00', glowEffect: false } },
+    { id: 'pt-hb', type: 'equipment', position: { x: 500, y: 480 }, data: { tagName: 'PT-HB', displayName: 'Boiler Pressure', equipmentType: 'pressure-transmitter', status: 'RUN', icon: 'Gauge', opcTag: '', mqttTopic: '', apiEndpoint: '/api/steam-telemetry', dataSourceKey: 'PT-HB', staticValue: '12.0 bar', width: 110, height: 50, color: '#FBE9E7', borderColor: '#D84315', glowEffect: false } },
+    { id: 'tt-hb', type: 'equipment', position: { x: 590, y: 480 }, data: { tagName: 'TT-HB', displayName: 'Boiler Temp', equipmentType: 'temperature-sensor', status: 'RUN', icon: 'Thermometer', opcTag: '', mqttTopic: '', apiEndpoint: '/api/steam-telemetry', dataSourceKey: 'TT-HB', staticValue: '180.0°C', width: 110, height: 50, color: '#FBE9E7', borderColor: '#D84315', glowEffect: false } },
     { id: 'ft-hb', type: 'equipment', position: { x: 750, y: 550 }, data: { tagName: 'FT-HB', displayName: 'Steam Flow', equipmentType: 'flow-meter', status: 'RUN', icon: 'Activity', opcTag: '', mqttTopic: '', apiEndpoint: '', staticValue: '3400', width: 130, height: 120, color: '#E1F5FE', borderColor: '#0288D1', glowEffect: false } },
   ],
   edges: [
@@ -72,8 +75,9 @@ export const DEFAULT_TEMPLATE: SavedLayout = {
     // Flow Meters → Consumer Areas
     { id: 'e-201-weave', source: 'ft-201', target: 'weaving', sourceHandle: 'source-right', targetHandle: 'target-left', type: 'animatedPipe', data: { flowAnimated: true, flowColor: '#06B6D4', pipeThickness: 3, flowDirection: 'forward', waypoints: [], label: '' } },
     { id: 'e-202-spin', source: 'ft-202', target: 'spinning', sourceHandle: 'source-right', targetHandle: 'target-left', type: 'animatedPipe', data: { flowAnimated: true, flowColor: '#06B6D4', pipeThickness: 3, flowDirection: 'forward', waypoints: [], label: '' } },
-    // Boiler → Steam Flow
-    { id: 'e-boiler-ft', source: 'boiler-01', target: 'ft-hb', sourceHandle: 'source-right', targetHandle: 'target-left', type: 'animatedPipe', data: { flowAnimated: true, flowColor: '#22C55E', pipeThickness: 3, flowDirection: 'forward', waypoints: [], label: '' } },
+    // Boiler → Header Boiler → Steam Flow
+    { id: 'e-boiler-hb', source: 'boiler-01', target: 'header-boiler-01', sourceHandle: 'source-right', targetHandle: 'target-left', type: 'animatedPipe', data: { flowAnimated: true, flowColor: '#22C55E', pipeThickness: 3, flowDirection: 'forward', waypoints: [], label: '' } },
+    { id: 'e-boiler-ft', source: 'header-boiler-01', target: 'ft-hb', sourceHandle: 'source-right', targetHandle: 'target-left', type: 'animatedPipe', data: { flowAnimated: true, flowColor: '#22C55E', pipeThickness: 3, flowDirection: 'forward', waypoints: [], label: '' } },
   ],
   viewport: { x: 0, y: 0, zoom: 0.85 },
   savedAt: '',

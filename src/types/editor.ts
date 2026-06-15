@@ -15,6 +15,7 @@ export type EquipmentType =
   | 'pressure-transmitter'
   | 'temperature-sensor'
   | 'boiler'
+  | 'header-boiler'
   | 'consumer-area'
   | 'section-label'
   | 'custom';
@@ -119,6 +120,7 @@ export const EQUIPMENT_CATALOGUE: EquipmentCatalogueItem[] = [
   // Generation
   { type: 'compressor', label: 'Compressor', icon: 'Fan', category: 'generation', defaultWidth: 160, defaultHeight: 100, defaultColor: '#E0F7FA', defaultBorderColor: '#00ACC1' },
   { type: 'boiler', label: 'Boiler', icon: 'Flame', category: 'generation', defaultWidth: 160, defaultHeight: 100, defaultColor: '#FFF3E0', defaultBorderColor: '#EF6C00' },
+  { type: 'header-boiler', label: 'Header Boiler', icon: 'Gauge', category: 'generation', defaultWidth: 120, defaultHeight: 100, defaultColor: '#FFF3E0', defaultBorderColor: '#EF6C00' },
   // Treatment
   { type: 'dryer', label: 'Air Dryer', icon: 'Droplets', category: 'treatment', defaultWidth: 140, defaultHeight: 90, defaultColor: '#E8F5E9', defaultBorderColor: '#43A047' },
   // Storage
