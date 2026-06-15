@@ -153,12 +153,12 @@ export default function Header({
 
         <div className={`hidden lg:block h-6 w-[1px] ${isDark ? 'bg-slate-800' : 'bg-slate-200'}`} />
 
-        <div className="flex flex-col items-end">
+        <div className="flex flex-col items-end" suppressHydrationWarning>
           <span className="text-[8px] text-slate-500 font-mono uppercase tracking-wider font-bold">SYSTEM CLOCK</span>
           <span className={`text-xs font-extrabold font-mono tracking-tight mt-0.5 ${
             isDark ? 'text-slate-300' : 'text-slate-700'
-          }`}>
-            {timeStr || '2026-06-11 04:00:53'}
+          }`} suppressHydrationWarning>
+            {timeStr}
           </span>
         </div>
       </div>
