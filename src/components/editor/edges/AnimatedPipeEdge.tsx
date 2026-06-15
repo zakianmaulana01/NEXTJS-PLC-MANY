@@ -9,6 +9,7 @@ import {
   type EdgeProps,
   type Edge,
 } from '@xyflow/react';
+import type { EditorNodeData } from '@/types/editor';
 import type { EditorEdgeData, PipeWaypoint } from '@/types/editor';
 import { useEditorStore } from '@/hooks/useEditorStore';
 
@@ -37,6 +38,12 @@ export function AnimatedPipeEdge(props: EdgeProps<AnimatedPipeEdgeType>) {
   const animated = data?.flowAnimated ?? true;
   const direction = data?.flowDirection || 'forward';
   const waypoints: PipeWaypoint[] = data?.waypoints || [];
+
+  // Check if source node is a flow-meter - use static dots instead of animated flow
+  const { getNodes } = useReactFlow();
+  const sourceNode = getNodes().find((n) => n.id === props.source);
+  const isFlowMeter = sourceNode && (sourceNode.data as EditorNodeData)?.equipmentType === 'flow-meter';
+  const useStaticDots = isFlowMeter && !animated;
 
   // Path: segments through waypoints, else smoothstep
   let edgePath: string;
@@ -110,7 +117,7 @@ export function AnimatedPipeEdge(props: EdgeProps<AnimatedPipeEdgeType>) {
         onDoubleClick={onPathDoubleClick}
       />
       {/* Flow animation */}
-      {animated && (
+      {animated && !useStaticDots && (
         <path
           d={edgePath}
           fill="none"
@@ -123,6 +130,21 @@ export function AnimatedPipeEdge(props: EdgeProps<AnimatedPipeEdgeType>) {
             pointerEvents: 'none',
           }}
         />
+      )}
+      {/* Static dots for flow-meter edges */}
+      {useStaticDots && (
+        <>
+          <path
+            d={edgePath}
+            fill="none"
+            stroke="#94a3b8"
+            strokeWidth={thickness}
+            strokeDasharray="2 6"
+            strokeLinecap="round"
+            opacity={0.5}
+            style={{ pointerEvents: 'none' }}
+          />
+        </>
       )}
       {/* Selection highlight */}
       {selected && (

@@ -18,6 +18,7 @@ interface EditorState {
   viewport: Viewport;
   selectedNodeId: string | null;
   selectedEdgeId: string | null;
+  connecting: boolean;
   // History
   undoStack: { nodes: EditorNode[]; edges: EditorEdge[] }[];
   redoStack: { nodes: EditorNode[]; edges: EditorEdge[] }[];
@@ -42,6 +43,7 @@ interface EditorState {
   // Selection
   setSelectedNode: (nodeId: string | null) => void;
   setSelectedEdge: (edgeId: string | null) => void;
+  setConnecting: (connecting: boolean) => void;
   // Persistence
   saveLayout: () => void;
   loadLayout: () => boolean;
@@ -61,6 +63,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   viewport: { x: 0, y: 0, zoom: 1 },
   selectedNodeId: null,
   selectedEdgeId: null,
+  connecting: false,
   undoStack: [],
   redoStack: [],
 
@@ -217,6 +220,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   /* -- Selection ------------------------------------ */
 
   setSelectedNode: (nodeId) => set({ selectedNodeId: nodeId, selectedEdgeId: null }),
+  setConnecting: (connecting) => set({ connecting }),
   setSelectedEdge: (edgeId) => set({ selectedEdgeId: edgeId, selectedNodeId: null }),
 
   /* -- Persistence ---------------------------------- */

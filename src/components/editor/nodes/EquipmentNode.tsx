@@ -4,6 +4,7 @@ import React, { memo } from 'react';
 import { Handle, Position, type NodeProps, type Node } from '@xyflow/react';
 import { Fan, Droplets, Activity, Gauge, Flame, Wind, Power, RotateCw } from 'lucide-react';
 import type { EditorNodeData } from '@/types/editor';
+import { useEditorStore } from '@/hooks/useEditorStore';
 
 type EquipmentNodeType = Node<EditorNodeData, 'equipment'>;
 
@@ -339,10 +340,11 @@ function GenericCard({ data, selected }: { data: EditorNodeData; selected?: bool
 
 // ========== SHARED HELPERS ==========
 function Handles({ selected }: { selected?: boolean }) {
+  const connecting = useEditorStore((s) => s.connecting);
   const handleStyle = "!w-3 !h-3 !bg-cyan-400 hover:!bg-cyan-500 !border-2 !border-white dark:!border-slate-900 !rounded-full transition-all cursor-crosshair";
   const hiddenStyle = "!opacity-0";
   const visibleStyle = "!opacity-80 hover:!opacity-100";
-  const baseStyle = selected ? visibleStyle : hiddenStyle;
+  const baseStyle = selected || connecting ? visibleStyle : hiddenStyle;
   return (
     <>
       <Handle type="target" position={Position.Top} id="target-top" className={`${handleStyle} ${baseStyle} !-top-1.5`} />
