@@ -234,7 +234,7 @@ function BoilerCard({ data, selected }: { data: EditorNodeData; selected?: boole
           <path fill="url(#gradient-water-boiler-editor)" opacity="0.9">
             <animate attributeName="d" values="M0,80 Q30,70 60,80 T120,80 L120,130 L0,130 Z; M0,80 Q30,90 60,80 T120,80 L120,130 L0,130 Z; M0,80 Q30,70 60,80 T120,80 L120,130 L0,130 Z" dur="3s" repeatCount="indefinite" />
           </path>
-          <path fill="#0284c7" opacity="0.6">
+          <path fill="#0284c7" opacity="0.6" className="mix-blend-multiply dark:opacity-60">
             <animate attributeName="d" values="M0,83 Q30,93 60,83 T120,83 L120,130 L0,130 Z; M0,83 Q30,73 60,83 T120,83 L120,130 L0,130 Z; M0,83 Q30,93 60,83 T120,83 L120,130 L0,130 Z" dur="4s" repeatCount="indefinite" />
           </path>
         </g>
@@ -242,9 +242,9 @@ function BoilerCard({ data, selected }: { data: EditorNodeData; selected?: boole
         <g transform="translate(30, 130)">
           <rect x="0" y="0" width="60" height="20" rx="10" fill="#1a0f00" stroke="#475569" strokeWidth="1.5" className="dark:stroke-[#334155]" />
           <g className="animate-pulse">
-            <path d="M 10,6 L 50,6 M 10,10 L 50,10 M 10,14 L 50,14" className="stroke-orange-600 blur-[2px]" strokeWidth="5" strokeLinecap="round" />
-            <path d="M 10,6 L 50,6 M 10,10 L 50,10 M 10,14 L 50,14" className="stroke-orange-500 blur-[1px]" strokeWidth="3" strokeLinecap="round" />
-            <path d="M 10,6 L 50,6 M 10,10 L 50,10 M 10,14 L 50,14" className="stroke-orange-300" strokeWidth="1.5" strokeLinecap="round" />
+            <path d="M 10,6 L 50,6 M 10,10 L 50,10 M 10,14 L 50,14" className="stroke-[#ea580c] blur-[2px]" strokeWidth="5" strokeLinecap="round" />
+            <path d="M 10,6 L 50,6 M 10,10 L 50,10 M 10,14 L 50,14" className="stroke-[#f97316] blur-[1px]" strokeWidth="3" strokeLinecap="round" />
+            <path d="M 10,6 L 50,6 M 10,10 L 50,10 M 10,14 L 50,14" className="stroke-[#fed7aa]" strokeWidth="1.5" strokeLinecap="round" />
           </g>
         </g>
       </svg>
