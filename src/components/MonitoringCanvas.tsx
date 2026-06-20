@@ -175,7 +175,7 @@ function CustomCanvas({ layout, telemetry, onSelectionChange }: { layout: SavedL
   }, [onSelectionChange]);
 
   return (
-    <div className="flex-1 h-full w-full relative [background-size:20px_20px] bg-[radial-gradient(#e2e8f0_1px,transparent_1px)] dark:bg-[radial-gradient(#1e293b_1px,transparent_1px)] bg-[#F5F7FA] dark:bg-slate-950">
+    <div className="flex-1 h-full w-full relative bg-[#F5F7FA] dark:bg-slate-950">
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -195,10 +195,10 @@ function CustomCanvas({ layout, telemetry, onSelectionChange }: { layout: SavedL
         translateExtent={[[-200, -100], [1500, 1000]]}
       >
         <Background
-          variant={BackgroundVariant.Dots}
-          gap={20}
-          size={1.5}
-          color={isDark ? '#334155' : '#cbd5e1'}
+          variant={BackgroundVariant.Lines}
+          gap={40}
+          size={0.5}
+          color={isDark ? '#1e293b' : '#e2e8f0'}
         />
         <Controls
           className="!border-slate-200 dark:!border-slate-700 !bg-white dark:!bg-slate-900 !rounded-lg !shadow-sm"
