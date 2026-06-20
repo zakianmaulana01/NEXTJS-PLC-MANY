@@ -188,9 +188,11 @@ function CustomCanvas({ layout, telemetry, onSelectionChange }: { layout: SavedL
         onNodeClick={handleNodeClick}
         onPaneClick={handlePaneClick}
         proOptions={{ hideAttribution: true }}
-        minZoom={0.3}
-        maxZoom={2.5}
-        translateExtent={[[-200, -100], [1200, 800]]}
+        minZoom={0.5}
+        maxZoom={2.0}
+        fitView
+        fitViewOptions={{ padding: 0.1, minZoom: 0.5, maxZoom: 1 }}
+        translateExtent={[[-200, -100], [1500, 1000]]}
       >
         <Background
           variant={BackgroundVariant.Dots}
