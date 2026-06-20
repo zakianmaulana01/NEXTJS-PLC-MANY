@@ -431,6 +431,23 @@ export default function MonitoringDashboard() {
 
         const tankPressure = prev.tank.pressure;
 
+        // Random anomaly: ~2% chance per tick on running compressors => FAULT
+        const updatedCompressorsWithAnomalies = updatedCompressors.map((comp) => {
+          if (comp.status === 'RUN' && tickCounter.current % 5 === 0 && Math.random() < 0.018) {
+            setTimeout(() => {
+              emitAlarm(comp.tag, comp.name, `FAULT: Abnormal vibration detected on ${comp.tag}. Thermal overload protection activated.`, 'CRITICAL');
+            }, 50);
+            return { ...comp, status: 'FAULT' as const };
+          }
+          if (comp.status === 'FAULT' && Math.random() < 0.04) {
+            setTimeout(() => {
+              emitAlarm(comp.tag, comp.name, `${comp.tag} fault cleared. Restarting to RUN.`, 'WARNING');
+            }, 50);
+            return { ...comp, status: 'RUN' as const };
+          }
+          return comp;
+        });
+
         const isAnyDryerOnline = prev.dryers.some((d) => d.status === 'RUN');
 
         const updatedDryers = prev.dryers.map((dryer) => {
@@ -560,7 +577,7 @@ export default function MonitoringDashboard() {
 
         return {
           ...prev,
-          compressors: updatedCompressors,
+          compressors: updatedCompressorsWithAnomalies,
           dryers: updatedDryers,
           overallStatus,
           header: {
