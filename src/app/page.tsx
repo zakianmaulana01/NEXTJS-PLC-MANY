@@ -429,39 +429,7 @@ export default function MonitoringDashboard() {
           }
         });
 
-        const isC1Running = updatedCompressors[0].status === 'RUN';
-        const isC2Running = updatedCompressors[1].status === 'RUN';
-        const isC3Running = updatedCompressors[2].status === 'RUN';
         const tankPressure = prev.tank.pressure;
-
-        if (tankPressure < 6.2 && isC1Running && !isC2Running && updatedCompressors[1].status !== 'FAULT') {
-          updatedCompressors[1].status = 'RUN';
-          updatedCompressors[1].loadPercent = 60;
-          setTimeout(() => {
-            emitAlarm('PLC', 'Sequencer Core', 'PLC CASCADE TRIGGER: Primary pressure below 6.2 bar. Auto-firing standby COMP-02.', 'WARNING');
-          }, 10);
-        }
-
-        if (tankPressure < 5.7 && isC2Running && !isC3Running && updatedCompressors[2].status !== 'FAULT') {
-          updatedCompressors[2].status = 'RUN';
-          updatedCompressors[2].loadPercent = 70;
-          setTimeout(() => {
-            emitAlarm('PLC', 'Sequencer Core', 'PLC CRITICAL CASCADE: Emergency low pressure below 5.7 bar. Launching terminal backup COMP-03.', 'CRITICAL');
-          }, 10);
-        }
-
-        if (tankPressure > 7.9 && isC3Running) {
-          updatedCompressors[2].status = 'STOP';
-          setTimeout(() => {
-            emitAlarm('PLC', 'Sequencer Core', 'PLC DECASCADING: Buffer pressure recovered to >7.9 bar. High-efficiency shutdown of COMP-03.', 'WARNING');
-          }, 10);
-        }
-        if (tankPressure > 8.1 && isC2Running) {
-          updatedCompressors[1].status = 'STOP';
-          setTimeout(() => {
-            emitAlarm('PLC', 'Sequencer Core', 'PLC DECASCADING: Pressure stabilized at 8.1 bar. Terminating secondary aid COMP-02.', 'WARNING');
-          }, 10);
-        }
 
         const isAnyDryerOnline = prev.dryers.some((d) => d.status === 'RUN');
 

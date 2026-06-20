@@ -2,16 +2,15 @@
 
 import { useEffect, useState } from "react";
 import { Moon, Sun } from "lucide-react";
-import { useTheme } from "next-themes";
 
 import { Button } from "@/components/ui/button";
+import { useTheme } from "@/context/ThemeContext";
 
 export function ThemeToggle() {
   const [mounted, setMounted] = useState(false);
-  const { resolvedTheme, setTheme } = useTheme();
+  const { theme, toggle } = useTheme();
 
   useEffect(() => {
-    // Avoid setState synchronously for lint rule if needed, though this is a standard pattern
     const timer = setTimeout(() => setMounted(true), 0);
     return () => clearTimeout(timer);
   }, []);
@@ -32,7 +31,7 @@ export function ThemeToggle() {
     );
   }
 
-  const isDark = resolvedTheme === "dark";
+  const isDark = theme === "dark";
 
   return (
     <Button
@@ -41,7 +40,7 @@ export function ThemeToggle() {
       size="icon"
       className="relative rounded-full"
       aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
-      onClick={() => setTheme(isDark ? "light" : "dark")}
+      onClick={toggle}
     >
       <Sun
         className={`size-4 transition-all ${
