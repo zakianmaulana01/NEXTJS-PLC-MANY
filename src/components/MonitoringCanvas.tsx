@@ -131,22 +131,12 @@ function CustomCanvas({ layout, telemetry, onSelectionChange }: { layout: SavedL
   }, [rawNodes, layout.edges]);
 
   const nodes = useMemo(() => {
-    return rawNodes.map((node) => {
-      const hasFlow = flowingNodes.has(node.id);
-      let finalStatus = node.data.status;
-      
-      // Auto-stop downstream equipment if there is no flow reaching them
-      if (!hasFlow && node.data.equipmentType !== 'compressor') {
-        finalStatus = 'STOP';
-      }
-
-      return { 
-        ...node, 
-        selected: node.id === selectedNodeId, 
-        data: { ...node.data, status: finalStatus, isEditor: false } 
-      };
-    });
-  }, [rawNodes, flowingNodes, selectedNodeId]);
+    return rawNodes.map((node) => ({
+      ...node,
+      selected: node.id === selectedNodeId,
+      data: { ...node.data, isEditor: false }
+    }));
+  }, [rawNodes, selectedNodeId]);
 
   // Edges grey + static when no flow reaches them
   const edges = useMemo(() => {
