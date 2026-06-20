@@ -60,15 +60,19 @@ function CompressorCard({ data, selected, isEditor }: { data: EditorNodeData; se
       </div>
       <div className={`space-y-0.5 text-[10px] text-slate-700 dark:text-slate-300 ${isEditor ? 'mb-2' : ''}`}>
         {hasCustom ? (
-          data.metrics!.map((m) => (
-            <Row key={m.id} label={`${m.label}:`} value={isRun ? `${m.fallback}${m.unit ? ' ' + m.unit : ''}` : `0${m.unit ? ' ' + m.unit : ''}`} color={m.color} />
-          ))
+          data.metrics!.map((m) => {
+            const liveValue = data[m.valueKey] as string | number | undefined;
+            const fallbackValue = `${m.fallback}${m.unit ? ' ' + m.unit : ''}`;
+            const stoppedValue = `0${m.unit ? ' ' + m.unit : ''}`;
+            const displayValue = isRun ? (liveValue ? String(liveValue) : fallbackValue) : stoppedValue;
+            return <Row key={m.id} label={`${m.label}:`} value={displayValue} color={m.color} />;
+          })
         ) : (
           <>
-            <Row label="SPEED:" value={isRun ? '70%' : '0%'} />
-            <Row label="POWER:" value={isRun ? '75 kW' : '0 kW'} color="text-yellow-500" />
-            <Row label="TEMP:" value={isRun ? '76.5°C' : '22.0°C'} />
-            <Row label="FLOW:" value={isRun ? '595 Nm³' : '0 Nm³'} color="text-cyan-500" />
+            <Row label="SPEED:" value={isRun ? String(data.liveSpeed || '70%') : '0%'} />
+            <Row label="POWER:" value={isRun ? String(data.livePower || '75 kW') : '0 kW'} color="text-yellow-500" />
+            <Row label="TEMP:" value={isRun ? String(data.liveTemp || '76.5°C') : '22.0°C'} />
+            <Row label="FLOW:" value={isRun ? String(data.liveFlow || '595 Nm³') : '0 Nm³'} color="text-cyan-500" />
           </>
         )}
       </div>
@@ -100,8 +104,8 @@ function DryerCard({ data, selected, isEditor }: { data: EditorNodeData; selecte
         <Droplets className={`w-3 h-3 ${isRun ? 'text-cyan-500 animate-bounce' : 'text-slate-300'}`} />
       </div>
       <div className={`space-y-0.5 text-[9px] text-slate-500 ${isEditor ? 'mb-1.5' : ''}`}>
-        <Row label="DEW PT:" value={isRun ? '-40.0°C' : 'AMBIENT°C'} color={isRun ? 'text-cyan-500' : 'text-rose-500'} />
-        <Row label="OUTLET:" value={isRun ? '19.8°C' : '22°C'} />
+        <Row label="DEW PT:" value={isRun ? String(data.liveDewPoint || '-40.0°C') : 'AMBIENT°C'} color={isRun ? 'text-cyan-500' : 'text-rose-500'} />
+        <Row label="OUTLET:" value={isRun ? String(data.liveOutletTemp || '19.8°C') : '22°C'} />
       </div>
       {isEditor ? (
         <button className={`w-full py-0.5 text-[8px] uppercase font-bold border text-center transition ${isRun ? 'border-cyan-300 dark:border-cyan-800 text-cyan-500' : 'border-slate-200 dark:border-slate-700 text-slate-400'}`}>

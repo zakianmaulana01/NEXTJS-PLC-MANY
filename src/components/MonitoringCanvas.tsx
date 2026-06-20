@@ -95,12 +95,18 @@ function CustomCanvas({ layout, telemetry, onSelectionChange }: { layout: SavedL
         if (comp) {
           data.status = comp.status;
           data.staticValue = `${comp.dischargePressure.toFixed(1)} bar`;
+          data.liveSpeed = `${comp.loadPercent}%`;
+          data.livePower = `${comp.powerkW} kW`;
+          data.liveTemp = `${comp.dischargeTemp.toFixed(1)}°C`;
+          data.liveFlow = `${Math.round(8.5 * comp.loadPercent)} Nm³`;
         }
       } else if (data.equipmentType === 'dryer') {
         const dryer = telemetry.dryers.find((dd) => dd.tag === tag) || telemetry.dryers[0];
         if (dryer) {
           data.status = dryer.status;
           data.staticValue = `${dryer.dewPoint.toFixed(1)} °C`;
+          data.liveDewPoint = `${dryer.dewPoint.toFixed(1)}°C`;
+          data.liveOutletTemp = `${dryer.outletTemp.toFixed(1)}°C`;
         }
       } else if (data.equipmentType === 'buffer-tank' || data.equipmentType === 'receiver-tank') {
         data.status = 'RUN';
