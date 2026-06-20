@@ -1,0 +1,14 @@
+version: '3.9'
+
+services:
+  nextjs-plc-many:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nextjs-plc-many
+    restart: unless-stopped
+    ports:
+      - '3005:3000'
+    environment:
+      NODE_ENV: production
+      PORT: 3000
