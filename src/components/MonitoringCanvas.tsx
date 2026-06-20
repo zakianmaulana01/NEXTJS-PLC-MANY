@@ -67,7 +67,7 @@ export default function MonitoringCanvas(props: MonitoringCanvasProps) {
     if (layout && layout.nodes && layout.nodes.length > 0) {
       return (
         <ReactFlowProvider>
-          <CustomCanvas layout={layout} telemetry={props.telemetry} onSelectionChange={props.onSelectionChange} />
+          <CustomCanvas layout={layout} telemetry={props.telemetry} onToggleCompressor={props.onToggleCompressor} onSetCompressorFault={props.onSetCompressorFault} onToggleValve={props.onToggleValve} onToggleDryerStatus={props.onToggleDryerStatus} onSelectionChange={props.onSelectionChange} />
         </ReactFlowProvider>
       );
     }
@@ -79,7 +79,7 @@ export default function MonitoringCanvas(props: MonitoringCanvasProps) {
 
 /* ── Custom Canvas (React Flow) ───────────────────── */
 
-function CustomCanvas({ layout, telemetry, onSelectionChange }: { layout: SavedLayout; telemetry: SystemTelemetry; onSelectionChange?: (hasSelection: boolean) => void; }) {
+function CustomCanvas({ layout, telemetry, onToggleCompressor, onSetCompressorFault, onToggleValve, onToggleDryerStatus, onSelectionChange }: { layout: SavedLayout; telemetry: SystemTelemetry; onToggleCompressor: (id: string) => void; onSetCompressorFault: (id: string) => void; onToggleValve: (id: string) => void; onToggleDryerStatus: (id: string) => void; onSelectionChange?: (hasSelection: boolean) => void; }) {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
@@ -143,10 +143,18 @@ function CustomCanvas({ layout, telemetry, onSelectionChange }: { layout: SavedL
       return { 
         ...node, 
         selected: node.id === selectedNodeId, 
-        data: { ...node.data, status: finalStatus, isEditor: false } 
+        data: {
+          ...node.data,
+          status: finalStatus,
+          isEditor: false,
+          onToggleCompressor,
+          onSetCompressorFault,
+          onToggleValve,
+          onToggleDryerStatus,
+        }
       };
     });
-  }, [rawNodes, flowingNodes, selectedNodeId]);
+  }, [rawNodes, flowingNodes, selectedNodeId, onToggleCompressor, onSetCompressorFault, onToggleValve, onToggleDryerStatus]);
 
   // Edges grey + static when no flow reaches them
   const edges = useMemo(() => {

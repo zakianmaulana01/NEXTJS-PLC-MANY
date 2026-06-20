@@ -43,8 +43,8 @@ export interface EditorNodeData {
   // Data binding (for OPC/MQTT/REST integration)
   opcTag: string;
   mqttTopic: string;
-  apiEndpoint: string;     // REST endpoint, e.g. "/api/telemetry"
-  dataSourceKey?: string;  // key inside the API payload that maps to this device, e.g. "COMP-01"
+  apiEndpoint: string;
+  dataSourceKey?: string;
   staticValue: string;
   // Custom display metrics (rows shown inside the node card)
   metrics?: NodeMetric[];
@@ -54,6 +54,11 @@ export interface EditorNodeData {
   color: string;
   borderColor: string;
   glowEffect: boolean;
+  // Runtime callbacks (monitoring mode only, injected by MonitoringCanvas)
+  onToggleCompressor?: (tag: string) => void;
+  onSetCompressorFault?: (tag: string) => void;
+  onToggleValve?: (tag: string) => void;
+  onToggleDryerStatus?: (tag: string) => void;
 }
 
 /* -- Edge / Pipe Data ------------------------------- */

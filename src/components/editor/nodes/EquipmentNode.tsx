@@ -81,7 +81,20 @@ function CompressorCard({ data, selected, isEditor }: { data: EditorNodeData; se
             <RotateCw className="w-2.5 h-2.5" />
           </button>
         </div>
-      ) : null}
+      ) : (
+        <div className="flex items-center gap-1 mt-2 pointer-events-auto">
+          <button 
+            onClick={(e) => { e.stopPropagation(); data.onToggleCompressor?.(data.tagName); }}
+            className={`flex-1 py-1 font-mono font-bold text-[9px] uppercase border text-center transition hover:scale-[1.02] active:scale-95 ${isRun ? 'border-emerald-300 dark:border-emerald-800 text-emerald-500 hover:bg-emerald-500/10' : 'border-slate-200 dark:border-slate-800 text-slate-400 hover:text-emerald-500 hover:border-emerald-500/50'}`}>
+            <Power className="w-2.5 h-2.5 inline mr-1" />{isRun ? 'STOP' : 'RUN'}
+          </button>
+          <button 
+            onClick={(e) => { e.stopPropagation(); data.onSetCompressorFault?.(data.tagName); }}
+            className="p-1 border border-slate-200 dark:border-slate-800 text-slate-400 transition hover:bg-rose-500/10 hover:text-rose-500 hover:border-rose-500/50 active:scale-95">
+            <RotateCw className={`w-2.5 h-2.5 ${isFault ? 'animate-spin' : ''}`} />
+          </button>
+        </div>
+      )}
     </div>
   );
 }
@@ -108,9 +121,11 @@ function DryerCard({ data, selected, isEditor }: { data: EditorNodeData; selecte
           {isRun ? 'ONLINE' : 'BYPASS'}
         </button>
       ) : (
-        <div className={`w-full py-0.5 text-[8px] uppercase font-bold border text-center ${isRun ? 'border-cyan-300 dark:border-cyan-800 text-cyan-500' : 'border-slate-200 dark:border-slate-700 text-slate-400'}`}>
+        <button 
+          onClick={(e) => { e.stopPropagation(); data.onToggleDryerStatus?.(data.tagName); }}
+          className={`w-full mt-1.5 py-0.5 text-[8px] uppercase font-bold border text-center transition hover:scale-[1.02] active:scale-95 pointer-events-auto ${isRun ? 'border-cyan-300 dark:border-cyan-800 text-cyan-500 hover:bg-cyan-500/10' : 'border-slate-200 dark:border-slate-700 text-slate-400 hover:border-cyan-500/50 hover:text-cyan-500'}`}>
           {isRun ? 'ONLINE' : 'BYPASS'}
-        </div>
+        </button>
       )}
     </div>
   );
@@ -191,7 +206,9 @@ function ValveCard({ data, selected }: { data: EditorNodeData; selected?: boolea
   return (
     <div className={`flex flex-col items-center gap-1 ${selected ? 'ring-2 ring-blue-500 rounded p-1' : 'p-1'}`}>
       <Handles selected={selected} />
-      <svg width="28" height="16" viewBox="0 0 28 16">
+      <svg 
+        width="28" height="16" viewBox="0 0 28 16" className="cursor-pointer hover:opacity-80 active:scale-95"
+        onClick={(e) => { e.stopPropagation(); data.onToggleValve?.(data.tagName); }}>
         <polygon points="0,0 14,6 14,-6" transform="translate(0,8)" className={isOpen ? 'fill-emerald-500' : 'fill-rose-500'} />
         <polygon points="28,0 14,6 14,-6" transform="translate(0,8)" className={isOpen ? 'fill-emerald-500' : 'fill-rose-500'} />
         <circle cx="14" cy="3" r="4" className={`${isOpen ? 'fill-emerald-500' : 'fill-rose-500'} stroke-white dark:stroke-slate-900`} strokeWidth="1.5" />
@@ -224,10 +241,12 @@ function FlowMeterCard({ data, selected, isEditor }: { data: EditorNodeData; sel
           <Power className="w-2.5 h-2.5" /> {isRun ? 'STOP' : 'START'}
         </button>
       ) : (
-        <div className={`w-full py-1 font-mono font-bold text-[9px] uppercase border text-center flex items-center justify-center gap-1
-          ${isRun ? 'border-emerald-300 dark:border-emerald-800 text-emerald-500' : 'border-slate-200 dark:border-slate-800 text-slate-400'}`}>
-          {isRun ? 'RUNNING' : 'STOPPED'}
-        </div>
+        <button 
+          onClick={(e) => { e.stopPropagation(); data.onToggleCompressor?.(data.tagName); }}
+          className={`w-full py-1 font-mono font-bold text-[9px] uppercase border text-center transition flex items-center justify-center gap-1 hover:scale-[1.02] active:scale-95 pointer-events-auto
+          ${isRun ? 'border-emerald-300 dark:border-emerald-800 text-emerald-500' : 'border-slate-200 dark:border-slate-800 text-slate-400 hover:text-emerald-500 hover:border-emerald-500/50'}`}>
+          <Power className="w-2.5 h-2.5" /> {isRun ? 'STOP' : 'START'}
+        </button>
       )}
     </div>
   );
