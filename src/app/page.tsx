@@ -433,13 +433,13 @@ export default function MonitoringDashboard() {
 
         // Random anomaly: ~2% chance per tick on running compressors => FAULT
         const updatedCompressorsWithAnomalies = updatedCompressors.map((comp) => {
-          if (comp.status === 'RUN' && tickCounter.current % 5 === 0 && Math.random() < 0.018) {
+          if (comp.status === 'RUN' && tickCounter.current % 6 === 0 && Math.random() < 0.35) {
             setTimeout(() => {
               emitAlarm(comp.tag, comp.name, `FAULT: Abnormal vibration detected on ${comp.tag}. Thermal overload protection activated.`, 'CRITICAL');
             }, 50);
             return { ...comp, status: 'FAULT' as const };
           }
-          if (comp.status === 'FAULT' && Math.random() < 0.04) {
+          if (comp.status === 'FAULT' && Math.random() < 0.25) {
             setTimeout(() => {
               emitAlarm(comp.tag, comp.name, `${comp.tag} fault cleared. Restarting to RUN.`, 'WARNING');
             }, 50);
@@ -608,7 +608,7 @@ export default function MonitoringDashboard() {
     };
 
     runSimulationTick();
-    const intervalId = setInterval(runSimulationTick, 1000);
+    const intervalId = setInterval(runSimulationTick, 10000);
     return () => clearInterval(intervalId);
   }, []);
 

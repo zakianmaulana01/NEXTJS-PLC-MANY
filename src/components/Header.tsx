@@ -1,23 +1,21 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { RefreshCw, Wind } from 'lucide-react';
+import { Wind } from 'lucide-react';
 import { SystemTelemetry } from '@/types/monitoring';
 import { useTheme } from '@/context/ThemeContext';
 import { ThemeToggle } from '@/components/shared/theme-toggle';
 
 interface HeaderProps {
   telemetry: SystemTelemetry;
-  setSimMode: (mode: SystemTelemetry['simMode']) => void;
-  resetSimulation: () => void;
-  muteAlarms: () => void;
-  alarmsMuted: boolean;
+  setSimMode?: (mode: SystemTelemetry['simMode']) => void;
+  resetSimulation?: () => void;
+  muteAlarms?: () => void;
+  alarmsMuted?: boolean;
 }
 
 export default function Header({
   telemetry,
-  setSimMode,
-  resetSimulation,
 }: HeaderProps) {
   const { theme } = useTheme();
   const [timeStr, setTimeStr] = useState<string>('');
@@ -73,58 +71,6 @@ export default function Header({
               : 'bg-rose-500 animate-ping'
           }`} />
         </div>
-      </div>
-
-      {/* Center simulation controller */}
-      <div className={`flex flex-wrap items-center gap-1 p-1 border rounded transition-colors ${
-        isDark ? 'bg-slate-950 border-slate-800' : 'bg-slate-100 border-slate-200'
-      }`}>
-        <span className="text-[9px] text-slate-500 font-mono px-2 font-bold uppercase tracking-wider">Sim Mode:</span>
-        
-        <button
-          onClick={() => setSimMode('NORMAL')}
-          className={`px-2.5 py-1 text-[10px] font-mono uppercase font-bold rounded transition ${
-            telemetry.simMode === 'NORMAL'
-              ? isDark 
-                ? 'bg-slate-850 border-slate-750 text-cyan-400 shadow-[inset_0_1px_3px_rgba(0,0,0,0.4)]'
-                : 'bg-white border-slate-200 text-sky-600 shadow-sm'
-              : isDark
-                ? 'text-slate-500 hover:text-slate-350 hover:bg-slate-900/60'
-                : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200'
-          }`}
-        >
-          Flow Meter Compressed
-        </button>
-
-        <button
-          onClick={() => setSimMode('PEAK_DEMAND')}
-          className={`px-2.5 py-1 text-[10px] font-mono uppercase font-bold rounded transition ${
-            telemetry.simMode === 'PEAK_DEMAND'
-              ? isDark
-                ? 'bg-slate-850 border-slate-750 text-violet-400 shadow-[inset_0_1px_3px_rgba(0,0,0,0.4)]'
-                : 'bg-violet-50 border-violet-200 text-violet-700 shadow-sm'
-              : isDark
-                ? 'text-slate-500 hover:text-slate-350 hover:bg-slate-900/60'
-                : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200'
-          }`}
-        >
-          Flow Meter Boiler
-        </button>
-
-        <div className={`h-4 w-px mx-1 ${isDark ? 'bg-slate-800' : 'bg-slate-300'}`} />
-
-        <button
-          onClick={resetSimulation}
-          title="Reset Simulation Data"
-          className={`p-1 px-2.5 rounded transition flex items-center gap-1 text-[10px] font-mono uppercase font-bold ${
-            isDark 
-              ? 'text-slate-400 hover:text-rose-400 hover:bg-slate-900'
-              : 'text-slate-500 hover:text-rose-600 hover:bg-slate-200'
-          }`}
-        >
-          <RefreshCw className="w-2.5 h-2.5" />
-          Reset
-        </button>
       </div>
 
       {/* Right details */}
