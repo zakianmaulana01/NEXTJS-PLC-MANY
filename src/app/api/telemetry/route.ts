@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 
 /**
- * Telemetry API — sample SCADA data source.
+ * Telemetry API — sample data source.
  *
  * The dashboard / editor nodes bind to this endpoint via:
  *   - data.apiEndpoint   = "/api/telemetry"
@@ -25,7 +25,7 @@ function jitter(base: number, spread: number) {
 }
 
 export async function GET() {
-  // --- MOCK DATA (swap with real PLC/SCADA bridge) -------------------------
+  // --- MOCK DATA (swap with real PLC bridge) -------------------------
   const devices: Record<string, DeviceData> = {
     'COMP-01': { status: 'RUN', loadPercent: jitter(70, 6), powerkW: jitter(75, 4), dischargeTemp: jitter(76.5, 2), flow: Math.round(jitter(595, 30)), runtimeHours: 4231 },
     'COMP-02': { status: 'STOP', loadPercent: 0, powerkW: 0, dischargeTemp: 22, flow: 0, runtimeHours: 3840 },

@@ -2,10 +2,11 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 
 import { ThemeProvider } from "@/components/providers/theme-provider";
-import { ScadaThemeProvider } from "@/context/ThemeContext";
+import { AppThemeProvider } from "@/context/ThemeContext";
+import DisableBackButton from "@/components/DisableBackButton";
 
 import "./globals.css";
-import "./scada.css";
+import "./monitoring.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,12 +20,12 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "SCADA Compressor Dashboard",
-    template: "%s | SCADA Dashboard",
+    default: "PLC Compressor Dashboard",
+    template: "%s | Dashboard",
   },
   description:
-    "Industrial Compressed Air SCADA system telemetry and monitoring dashboard.",
-  applicationName: "SCADA Compressor",
+    "Industrial Compressed Air system telemetry and monitoring dashboard.",
+  applicationName: "PLC Compressor",
 };
 
 export default function RootLayout({
@@ -39,19 +40,20 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full scroll-smooth`}
     >
       <body className="min-h-full bg-background font-sans text-foreground antialiased">
+        <DisableBackButton />
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
         >
-          <ScadaThemeProvider>
+          <AppThemeProvider>
             <div className="flex h-screen w-screen overflow-hidden">
               <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
                 {children}
               </div>
             </div>
-          </ScadaThemeProvider>
+          </AppThemeProvider>
         </ThemeProvider>
       </body>
     </html>

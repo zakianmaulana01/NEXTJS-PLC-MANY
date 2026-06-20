@@ -46,7 +46,7 @@ export default function EditorToolbar({ snapToGrid, onToggleSnap, onZoomIn, onZo
     setSaved(true);
     setTimeout(() => {
       setSaved(false);
-      router.push('/');
+      router.replace('/');
     }, 600);
   };
 
@@ -66,7 +66,7 @@ export default function EditorToolbar({ snapToGrid, onToggleSnap, onZoomIn, onZo
       {/* Left: Back + Title */}
       <div className="flex items-center gap-3">
         <button
-          onClick={() => router.push('/')}
+          onClick={() => router.replace('/')}
           className="flex items-center gap-1.5 px-2 py-1 rounded border border-slate-200 dark:border-slate-700 text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 text-[9px] font-mono font-bold uppercase tracking-wider transition"
         >
           <ArrowLeft className="w-3 h-3" />

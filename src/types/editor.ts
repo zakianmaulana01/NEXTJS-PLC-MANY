@@ -1,5 +1,5 @@
 /**
- * Type definitions for the SCADA Visual Canvas Editor.
+ * Type definitions for the Visual Canvas Editor.
  * All layout data is persisted to localStorage as JSON.
  */
 
@@ -153,4 +153,4 @@ export const FLOW_COLOR_PRESETS: { id: string; label: string; color: string }[] 
 
 /* -- localStorage Key ------------------------------- */
 
-export const LAYOUT_STORAGE_KEY = 'scada-editor-layout';
+export const LAYOUT_STORAGE_KEY = 'editor-layout';

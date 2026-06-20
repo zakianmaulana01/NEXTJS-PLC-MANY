@@ -13,7 +13,7 @@ import {
   VolumeX,
   ChevronLeft,
 } from 'lucide-react';
-import { SystemTelemetry } from '@/types/scada';
+import { SystemTelemetry } from '@/types/monitoring';
 import Sparkline from './Sparkline';
 import NumberFlow from './NumberFlow';
 import { useTheme } from '@/context/ThemeContext';
@@ -27,6 +27,7 @@ interface RightPanelProps {
   onClearAlarms: () => void;
   alarmsMuted: boolean;
   onToggleMute: () => void;
+  show?: boolean;
 }
 
 export default function RightPanel({
@@ -38,6 +39,7 @@ export default function RightPanel({
   onClearAlarms,
   alarmsMuted,
   onToggleMute,
+  show = true,
 }: RightPanelProps) {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
@@ -45,8 +47,8 @@ export default function RightPanel({
   const [isCollapsed, setIsCollapsed] = React.useState(false);
 
   return (
-    <aside className={`border-t lg:border-t-0 lg:border-l flex flex-col h-full overflow-hidden shrink-0 transition-all duration-300 ease-in-out ${
-      isCollapsed ? 'w-[48px]' : 'w-[320px]'
+    <aside className={`border-t lg:border-t-0 flex flex-col h-full overflow-hidden shrink-0 transition-all duration-300 ease-in-out ${
+      !show ? 'w-0 opacity-0 border-transparent' : isCollapsed ? 'w-[48px] lg:border-l' : 'w-[320px] lg:border-l'
     } ${
       isDark ? 'bg-slate-950 border-slate-800' : 'bg-white border-slate-200'
     }`}>

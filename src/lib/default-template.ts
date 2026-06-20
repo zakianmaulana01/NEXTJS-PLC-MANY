@@ -1,7 +1,7 @@
 import type { SavedLayout } from '@/types/editor';
 
 /**
- * Default template layout that matches the route / SCADA SVG map.
+ * Default template layout for the monitoring map.
  * Pre-loaded when no custom layout exists in localStorage.
  */
 export const DEFAULT_TEMPLATE: SavedLayout = {

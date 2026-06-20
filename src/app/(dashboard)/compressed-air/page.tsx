@@ -9,7 +9,7 @@ import EditorToolbar from '@/components/editor/EditorToolbar';
 import { useTheme } from '@/context/ThemeContext';
 
 /**
- * Visual Canvas Editor for designing SCADA/HMI plant layouts.
+ * Visual Canvas Editor for designing plant layouts.
  * Drag equipment from the left palette onto the canvas,
  * connect them with flow pipes, and configure properties on the right.
  * Save persists to localStorage and redirects to the monitoring dashboard.

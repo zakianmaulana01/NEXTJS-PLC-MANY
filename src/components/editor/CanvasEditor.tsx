@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useRef, useEffect } from 'react';
+import React, { useCallback, useRef, useEffect, useMemo } from 'react';
 import { LayoutTemplate } from 'lucide-react';
 import {
   ReactFlow,
@@ -13,6 +13,7 @@ import {
   type EdgeTypes,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
+import { calculateFlowPropagation } from '@/lib/utils';
 
 import { useEditorStore, type EditorNode } from '@/hooks/useEditorStore';
 import { EquipmentNode } from '@/components/editor/nodes/EquipmentNode';
@@ -45,9 +46,44 @@ export default function CanvasEditor({ snapToGrid }: CanvasEditorProps) {
   const isDark = theme === 'dark';
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const reactFlowInstance = useReactFlow();
+  const rawNodes = useEditorStore((s) => s.nodes);
+  const rawEdges = useEditorStore((s) => s.edges);
+  
+  const flowingNodes = useMemo(() => {
+    return calculateFlowPropagation(rawNodes, rawEdges);
+  }, [rawNodes, rawEdges]);
 
-  const nodes = useEditorStore((s) => s.nodes);
-  const edges = useEditorStore((s) => s.edges);
+  const nodes = useMemo(() => {
+    return rawNodes.map((node) => {
+      const hasFlow = flowingNodes.has(node.id);
+      let finalStatus = node.data.status;
+      
+      // Auto-stop downstream equipment if there is no flow reaching them
+      if (!hasFlow && node.data.equipmentType !== 'compressor') {
+        finalStatus = 'STOP';
+      }
+
+      return {
+        ...node,
+        data: { ...node.data, status: finalStatus }
+      };
+    });
+  }, [rawNodes, flowingNodes]);
+
+  const edges = useMemo(() => {
+    return rawEdges.map((edge) => {
+      const flowing = flowingNodes.has(edge.source);
+      return {
+        ...edge,
+        animated: flowing,
+        data: {
+          ...edge.data,
+          flowAnimated: flowing,
+          flowColor: flowing ? (edge.data?.flowColor || '#06B6D4') : '#94a3b8',
+        }
+      };
+    });
+  }, [rawEdges, flowingNodes]);
   const onNodesChange = useEditorStore((s) => s.onNodesChange);
   const onEdgesChange = useEditorStore((s) => s.onEdgesChange);
   const onConnect = useEditorStore((s) => s.onConnect);
@@ -61,6 +97,65 @@ export default function CanvasEditor({ snapToGrid }: CanvasEditorProps) {
   const loadLayout = useEditorStore((s) => s.loadLayout);
   const resetToTemplate = useEditorStore((s) => s.resetToTemplate);
   const updateNodeData = useEditorStore((s) => s.updateNodeData);
+
+  // Keyboard Shortcuts for Undo, Redo, Copy, Paste
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't trigger if user is typing in an input field
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+
+      const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+      const cmdOrCtrl = isMac ? e.metaKey : e.ctrlKey;
+
+      if (cmdOrCtrl && e.key.toLowerCase() === 'z') {
+        e.preventDefault();
+        if (e.shiftKey) {
+          useEditorStore.getState().redo();
+        } else {
+          useEditorStore.getState().undo();
+        }
+      } else if (cmdOrCtrl && e.key.toLowerCase() === 'y') {
+        e.preventDefault();
+        useEditorStore.getState().redo();
+      } else if (cmdOrCtrl && e.key.toLowerCase() === 'c') {
+        const state = useEditorStore.getState();
+        const selected = state.nodes.filter(n => n.selected);
+        if (selected.length > 0) {
+          sessionStorage.setItem('canvas-clipboard', JSON.stringify(selected));
+        }
+      } else if (cmdOrCtrl && e.key.toLowerCase() === 'v') {
+        const clip = sessionStorage.getItem('canvas-clipboard');
+        if (clip) {
+          try {
+            const parsed = JSON.parse(clip) as EditorNode[];
+            const state = useEditorStore.getState();
+            state.pushHistory();
+            
+            const offset = 30 + Math.floor(Math.random() * 20);
+            const newNodes = parsed.map(n => ({
+              ...n,
+              id: `${n.type}-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+              selected: true,
+              position: { x: n.position.x + offset, y: n.position.y + offset },
+              data: { ...n.data, tagName: n.data?.tagName ? `${n.data.tagName}-COPY` : 'COPY' }
+            }));
+
+            useEditorStore.setState({
+              nodes: [
+                ...state.nodes.map(n => ({ ...n, selected: false })),
+                ...newNodes
+              ]
+            });
+          } catch(err) {
+            console.error('Failed to paste nodes', err);
+          }
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   // Load saved layout on mount
   useEffect(() => {
@@ -223,7 +318,7 @@ export default function CanvasEditor({ snapToGrid }: CanvasEditorProps) {
         snapToGrid={snapToGrid}
         snapGrid={[15, 15]}
         fitView
-        deleteKeyCode="Delete"
+        deleteKeyCode={['Backspace', 'Delete']}
         multiSelectionKeyCode="Shift"
         connectionLineStyle={{ stroke: '#3B82F6', strokeWidth: 2 }}
         defaultEdgeOptions={{

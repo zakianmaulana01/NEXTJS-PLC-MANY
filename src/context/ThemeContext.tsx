@@ -9,7 +9,7 @@ const ThemeContext = createContext<{ theme: Theme; toggle: () => void }>({
   toggle: () => {},
 });
 
-export function ScadaThemeProvider({ children }: { children: React.ReactNode }) {
+export function AppThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState<Theme>('dark');
 
   useEffect(() => {
