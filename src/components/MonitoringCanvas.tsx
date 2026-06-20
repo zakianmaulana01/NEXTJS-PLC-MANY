@@ -195,10 +195,10 @@ function CustomCanvas({ layout, telemetry, onSelectionChange }: { layout: SavedL
         translateExtent={[[-200, -100], [1500, 1000]]}
       >
         <Background
-          variant={BackgroundVariant.Lines}
-          gap={40}
-          size={0.5}
-          color={isDark ? '#1e293b' : '#e2e8f0'}
+          variant={BackgroundVariant.Dots}
+          gap={34}
+          size={0.9}
+          color={isDark ? '#233042' : '#d7dee8'}
         />
         <Controls
           className="!border-slate-200 dark:!border-slate-700 !bg-white dark:!bg-slate-900 !rounded-lg !shadow-sm"
