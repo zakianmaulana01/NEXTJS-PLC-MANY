@@ -49,7 +49,7 @@ interface MonitoringCanvasProps {
 /* ── Component ────────────────────────────────────── */
 
 export default function MonitoringCanvas(props: MonitoringCanvasProps) {
-  const { hasCustomLayout, getSavedLayout } = useLayoutPersistence();
+  const { hasCustomLayout, getSavedLayout, isLoading } = useLayoutPersistence();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -59,7 +59,7 @@ export default function MonitoringCanvas(props: MonitoringCanvasProps) {
     }, 0);
   }, []);
 
-  if (!mounted) return null;
+  if (!mounted || isLoading) return null;
 
   if (hasCustomLayout()) {
     const layout = getSavedLayout();

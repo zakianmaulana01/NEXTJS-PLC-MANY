@@ -41,8 +41,8 @@ export default function EditorToolbar({ snapToGrid, onToggleSnap, onZoomIn, onZo
 
   const [saved, setSaved] = React.useState(false);
 
-  const handleSave = () => {
-    saveLayout();
+  const handleSave = async () => {
+    await saveLayout();
     setSaved(true);
     setTimeout(() => {
       setSaved(false);

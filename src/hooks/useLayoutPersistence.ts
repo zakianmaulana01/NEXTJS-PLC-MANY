@@ -1,34 +1,38 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import type { SavedLayout } from '@/types/editor';
-import { LAYOUT_STORAGE_KEY } from '@/types/editor';
 
 /**
- * Shared hook for reading persisted layout data.
- * Used by both the editor page (to load existing layout) and
- * the monitoring page (to render the custom layout).
+ * Shared hook for reading persisted layout data from server.
+ * Falls back to localStorage on fetch failure (offline/dev).
  */
 export function useLayoutPersistence() {
+  const [serverLayout, setServerLayout] = useState<SavedLayout | null | 'loading'>('loading');
+
+  useEffect(() => {
+    fetch('/api/layout')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => setServerLayout(data))
+      .catch(() => setServerLayout(null));
+  }, []);
+
   const getSavedLayout = (): SavedLayout | null => {
-    if (typeof window === 'undefined') return null;
-    try {
-      const raw = localStorage.getItem(LAYOUT_STORAGE_KEY);
-      if (!raw) return null;
-      return JSON.parse(raw) as SavedLayout;
-    } catch {
-      return null;
-    }
+    if (serverLayout === 'loading') return null;
+    return serverLayout;
   };
 
   const hasCustomLayout = (): boolean => {
-    if (typeof window === 'undefined') return false;
-    return localStorage.getItem(LAYOUT_STORAGE_KEY) !== null;
+    if (serverLayout === 'loading') return false;
+    return serverLayout !== null && Array.isArray((serverLayout as SavedLayout)?.nodes) && (serverLayout as SavedLayout).nodes.length > 0;
   };
 
-  const clearLayout = () => {
-    if (typeof window === 'undefined') return;
-    localStorage.removeItem(LAYOUT_STORAGE_KEY);
+  const clearLayout = async () => {
+    await fetch('/api/layout', { method: 'DELETE' });
+    setServerLayout(null);
   };
 
-  return { getSavedLayout, hasCustomLayout, clearLayout };
+  const isLoading = serverLayout === 'loading';
+
+  return { getSavedLayout, hasCustomLayout, clearLayout, isLoading };
 }

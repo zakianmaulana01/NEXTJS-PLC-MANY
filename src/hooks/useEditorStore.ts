@@ -45,9 +45,9 @@ interface EditorState {
   setSelectedEdge: (edgeId: string | null) => void;
   setConnecting: (connecting: boolean) => void;
   // Persistence
-  saveLayout: () => void;
-  loadLayout: () => boolean;
-  clearLayout: () => void;
+  saveLayout: () => Promise<void>;
+  loadLayout: () => Promise<boolean>;
+  clearLayout: () => Promise<void>;
   resetToTemplate: () => void;
   // History
   pushHistory: () => void;
@@ -225,7 +225,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
 
   /* -- Persistence ---------------------------------- */
 
-  saveLayout: () => {
+  saveLayout: async () => {
     const state = get();
     const layout: SavedLayout = {
       version: 1,
@@ -249,23 +249,24 @@ export const useEditorStore = create<EditorState>((set, get) => ({
       viewport: state.viewport,
       savedAt: new Date().toISOString(),
     };
+    await fetch('/api/layout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(layout),
+    });
     try {
       localStorage.setItem(LAYOUT_STORAGE_KEY, JSON.stringify(layout));
-    } catch {
-      // quota exceeded
-    }
+    } catch {}
   },
 
-  loadLayout: () => {
+  loadLayout: async () => {
     try {
-      const raw = localStorage.getItem(LAYOUT_STORAGE_KEY);
-      // Option B: do NOT auto-load template. Only load what the user saved.
-      // Empty canvas will show a "Load Template" button instead.
-      if (!raw) {
+      const res = await fetch('/api/layout');
+      if (!res.ok) {
         set({ nodes: [], edges: [], undoStack: [], redoStack: [] });
         return false;
       }
-      const layout = JSON.parse(raw) as SavedLayout;
+      const layout = await res.json() as SavedLayout;
       set({
         nodes: layout.nodes.map((n) => ({
           id: n.id,
@@ -292,12 +293,9 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     }
   },
 
-  clearLayout: () => {
-    try {
-      localStorage.removeItem(LAYOUT_STORAGE_KEY);
-    } catch {
-      // ignore
-    }
+  clearLayout: async () => {
+    await fetch('/api/layout', { method: 'DELETE' });
+    try { localStorage.removeItem(LAYOUT_STORAGE_KEY); } catch {}
     set({ nodes: [], edges: [], undoStack: [], redoStack: [] });
   },
 
