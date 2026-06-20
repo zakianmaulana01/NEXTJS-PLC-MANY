@@ -10,15 +10,17 @@ import {
   ReactFlowProvider,
   type NodeTypes,
   type EdgeTypes,
+  type Node,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
+import { calculateFlowPropagation } from '@/lib/utils';
 
 import { EquipmentNode } from '@/components/editor/nodes/EquipmentNode';
 import { SectionLabelNode } from '@/components/editor/nodes/SectionLabelNode';
 import { AnimatedPipeEdge } from '@/components/editor/edges/AnimatedPipeEdge';
 import { useLayoutPersistence } from '@/hooks/useLayoutPersistence';
-import ScadaMap from '@/components/ScadaMap';
-import type { SystemTelemetry } from '@/types/scada';
+import MonitoringMap from '@/components/MonitoringMap';
+import type { SystemTelemetry } from '@/types/monitoring';
 import { useTheme } from '@/context/ThemeContext';
 import type { EditorNodeData, SavedLayout } from '@/types/editor';
 
@@ -41,6 +43,7 @@ interface MonitoringCanvasProps {
   onSetCompressorFault: (id: string) => void;
   onToggleValve: (id: string) => void;
   onToggleDryerStatus: (id: string) => void;
+  onSelectionChange?: (hasSelection: boolean) => void;
 }
 
 /* ── Component ────────────────────────────────────── */
@@ -50,7 +53,10 @@ export default function MonitoringCanvas(props: MonitoringCanvasProps) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
+    // Delay the state update to avoid cascading render error in React 19
+    setTimeout(() => {
+      setMounted(true);
+    }, 0);
   }, []);
 
   if (!mounted) return null;
@@ -61,24 +67,25 @@ export default function MonitoringCanvas(props: MonitoringCanvasProps) {
     if (layout && layout.nodes && layout.nodes.length > 0) {
       return (
         <ReactFlowProvider>
-          <CustomCanvas layout={layout} telemetry={props.telemetry} onToggleCompressor={props.onToggleCompressor} onSetCompressorFault={props.onSetCompressorFault} onToggleValve={props.onToggleValve} onToggleDryerStatus={props.onToggleDryerStatus} />
+          <CustomCanvas layout={layout} telemetry={props.telemetry} onSelectionChange={props.onSelectionChange} />
         </ReactFlowProvider>
       );
     }
   }
 
   // Fallback to default SVG map
-  return <ScadaMap {...props} />;
+  return <MonitoringMap {...props} />;
 }
 
 /* ── Custom Canvas (React Flow) ───────────────────── */
 
-function CustomCanvas({ layout, telemetry, onToggleCompressor, onSetCompressorFault, onToggleValve, onToggleDryerStatus }: { layout: SavedLayout; telemetry: SystemTelemetry, onToggleCompressor: (id: string) => void; onSetCompressorFault: (id: string) => void; onToggleValve: (id: string) => void; onToggleDryerStatus: (id: string) => void; }) {
+function CustomCanvas({ layout, telemetry, onSelectionChange }: { layout: SavedLayout; telemetry: SystemTelemetry; onSelectionChange?: (hasSelection: boolean) => void; }) {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
+  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
 
   // Map real telemetry data to the saved nodes, matched by tagName
-  const nodes = useMemo(() => {
+  const rawNodes = useMemo(() => {
     return layout.nodes.map((node) => {
       const data = { ...node.data };
       const tag = data.tagName;
@@ -119,15 +126,37 @@ function CustomCanvas({ layout, telemetry, onToggleCompressor, onSetCompressorFa
     });
   }, [layout.nodes, telemetry]);
 
-  // Edges grey + static when source is not RUN
+  const flowingNodes = useMemo(() => {
+    return calculateFlowPropagation(rawNodes, layout.edges);
+  }, [rawNodes, layout.edges]);
+
+  const nodes = useMemo(() => {
+    return rawNodes.map((node) => {
+      const hasFlow = flowingNodes.has(node.id);
+      let finalStatus = node.data.status;
+      
+      // Auto-stop downstream equipment if there is no flow reaching them
+      if (!hasFlow && node.data.equipmentType !== 'compressor') {
+        finalStatus = 'STOP';
+      }
+
+      return { 
+        ...node, 
+        selected: node.id === selectedNodeId, 
+        data: { ...node.data, status: finalStatus, isEditor: false } 
+      };
+    });
+  }, [rawNodes, flowingNodes, selectedNodeId]);
+
+  // Edges grey + static when no flow reaches them
   const edges = useMemo(() => {
-    const statusById = new Map(nodes.map((n) => [n.id, n.data.status]));
     return layout.edges.map((edge) => {
-      const sourceStatus = statusById.get(edge.source);
-      const flowing = sourceStatus === 'RUN';
+      const flowing = flowingNodes.has(edge.source);
       return {
         ...edge,
         animated: flowing,
+        selectable: false,
+        interactionWidth: 0,
         data: {
           ...edge.data,
           flowAnimated: flowing,
@@ -135,22 +164,20 @@ function CustomCanvas({ layout, telemetry, onToggleCompressor, onSetCompressorFa
         },
       };
     });
-  }, [layout.edges, nodes]);
+  }, [layout.edges, flowingNodes]);
 
-  const handleNodeClick = (_event: React.MouseEvent, node: import('@xyflow/react').Node) => {
-    const data = node.data as unknown as EditorNodeData;
-    const { equipmentType, tagName } = data;
-    if (equipmentType === 'compressor') {
-      const comp = telemetry.compressors.find(c => c.tag === tagName) || telemetry.compressors[0];
-      if (comp) onToggleCompressor(comp.id);
-    } else if (equipmentType === 'dryer') {
-      const dryer = telemetry.dryers.find(d => d.tag === tagName) || telemetry.dryers[0];
-      if (dryer) onToggleDryerStatus(dryer.id);
-    } else if (equipmentType === 'valve') {
-      const valveKey = Object.keys(telemetry.valves).find(k => telemetry.valves[k].tag === tagName) || Object.keys(telemetry.valves)[0];
-      if (valveKey) onToggleValve(valveKey);
-    }
-  };
+  // Disabling manual start/stop from the dashboard viewer as requested.
+  // The layout editor can still test animations via double click.
+
+  const handleNodeClick = React.useCallback((_: React.MouseEvent, node: Node) => {
+    setSelectedNodeId(node.id);
+    if (onSelectionChange) onSelectionChange(true);
+  }, [onSelectionChange]);
+
+  const handlePaneClick = React.useCallback(() => {
+    setSelectedNodeId(null);
+    if (onSelectionChange) onSelectionChange(false);
+  }, [onSelectionChange]);
 
   return (
     <div className="flex-1 h-full w-full relative bg-slate-50 dark:bg-slate-950">
@@ -164,6 +191,7 @@ function CustomCanvas({ layout, telemetry, onToggleCompressor, onSetCompressorFa
         nodesConnectable={false}
         elementsSelectable={true}
         onNodeClick={handleNodeClick}
+        onPaneClick={handlePaneClick}
         proOptions={{ hideAttribution: true }}
       >
         <Background

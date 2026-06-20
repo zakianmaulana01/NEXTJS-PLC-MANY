@@ -1,15 +1,31 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { Pencil } from 'lucide-react';
-import { SystemTelemetry, Alarm } from '@/types/scada';
+import { SystemTelemetry, Alarm } from '@/types/monitoring';
 import Header from '@/components/Header';
-import MonitoringCanvas from '@/components/MonitoringCanvas';
+import { LAYOUT_STORAGE_KEY, type SerializedNode } from '@/types/editor';
 import RightPanel from '@/components/RightPanel';
 import { useTheme } from '@/context/ThemeContext';
 
-export default function ScadaDashboard() {
+const MonitoringCanvas = dynamic(() => import('@/components/MonitoringCanvas'), {
+  ssr: false,
+  loading: () => (
+    <div className="flex-1 flex items-center justify-center bg-slate-50 dark:bg-slate-950">
+      <div className="flex flex-col items-center gap-4">
+        <div className="relative">
+          <div className="w-16 h-16 border-4 border-slate-200 rounded-full" />
+          <div className="absolute inset-0 w-16 h-16 border-4 border-t-blue-500 rounded-full animate-spin" />
+        </div>
+        <p className="text-slate-500 font-medium">Loading PLC Dashboard...</p>
+      </div>
+    </div>
+  ),
+});
+
+export default function MonitoringDashboard() {
   const { theme } = useTheme();
   const [telemetry, setTelemetry] = useState<SystemTelemetry>({
     compressors: [
@@ -125,6 +141,7 @@ export default function ScadaDashboard() {
     simMode: 'NORMAL',
   });
 
+  const [hasSelection, setHasSelection] = useState(false);
   const [historyPressure, setHistoryPressure] = useState<number[]>(() =>
     Array.from({ length: 25 }, (_, index) => Number((6.2 + (index % 5) * 0.08).toFixed(2)))
   );
@@ -135,7 +152,30 @@ export default function ScadaDashboard() {
     Array.from({ length: 25 }, (_, index) => Number((-42 + (index % 5) * 0.8).toFixed(1)))
   );
 
-
+  useEffect(() => {
+    const saved = localStorage.getItem(LAYOUT_STORAGE_KEY);
+    if (saved) {
+      try {
+        const layout = JSON.parse(saved);
+        if (layout.nodes) {
+          // Delay the state update to avoid cascading render error in React 19
+          setTimeout(() => {
+            setTelemetry((prev) => {
+              const newComps = prev.compressors.map(c => {
+                const node = layout.nodes.find((n: SerializedNode) => n.data?.tagName === c.tag);
+                return node && node.data?.status ? { ...c, status: node.data.status, loadPercent: node.data.status === 'RUN' ? 70 : 0 } : c;
+              });
+              const newDryers = prev.dryers.map(d => {
+                const node = layout.nodes.find((n: SerializedNode) => n.data?.tagName === d.tag);
+                return node && node.data?.status ? { ...d, status: node.data.status } : d;
+              });
+              return { ...prev, compressors: newComps, dryers: newDryers };
+            });
+          }, 0);
+        }
+      } catch {}
+    }
+  }, []);
 
   const [alarmsMuted, setAlarmsMuted] = useState<boolean>(false);
   const tickCounter = useRef<number>(0);
@@ -396,7 +436,7 @@ export default function ScadaDashboard() {
           updatedCompressors[1].status = 'RUN';
           updatedCompressors[1].loadPercent = 60;
           setTimeout(() => {
-            emitAlarm('SCADA-PLC', 'Sequencer Core', 'PLC CASCADE TRIGGER: Primary pressure below 6.2 bar. Auto-firing standby COMP-02.', 'WARNING');
+            emitAlarm('PLC', 'Sequencer Core', 'PLC CASCADE TRIGGER: Primary pressure below 6.2 bar. Auto-firing standby COMP-02.', 'WARNING');
           }, 10);
         }
 
@@ -404,20 +444,20 @@ export default function ScadaDashboard() {
           updatedCompressors[2].status = 'RUN';
           updatedCompressors[2].loadPercent = 70;
           setTimeout(() => {
-            emitAlarm('SCADA-PLC', 'Sequencer Core', 'PLC CRITICAL CASCADE: Emergency low pressure below 5.7 bar. Launching terminal backup COMP-03.', 'CRITICAL');
+            emitAlarm('PLC', 'Sequencer Core', 'PLC CRITICAL CASCADE: Emergency low pressure below 5.7 bar. Launching terminal backup COMP-03.', 'CRITICAL');
           }, 10);
         }
 
         if (tankPressure > 7.9 && isC3Running) {
           updatedCompressors[2].status = 'STOP';
           setTimeout(() => {
-            emitAlarm('SCADA-PLC', 'Sequencer Core', 'PLC DECASCADING: Buffer pressure recovered to >7.9 bar. High-efficiency shutdown of COMP-03.', 'WARNING');
+            emitAlarm('PLC', 'Sequencer Core', 'PLC DECASCADING: Buffer pressure recovered to >7.9 bar. High-efficiency shutdown of COMP-03.', 'WARNING');
           }, 10);
         }
         if (tankPressure > 8.1 && isC2Running) {
           updatedCompressors[1].status = 'STOP';
           setTimeout(() => {
-            emitAlarm('SCADA-PLC', 'Sequencer Core', 'PLC DECASCADING: Pressure stabilized at 8.1 bar. Terminating secondary aid COMP-02.', 'WARNING');
+            emitAlarm('PLC', 'Sequencer Core', 'PLC DECASCADING: Pressure stabilized at 8.1 bar. Terminating secondary aid COMP-02.', 'WARNING');
           }, 10);
         }
 
@@ -605,6 +645,7 @@ export default function ScadaDashboard() {
           onSetCompressorFault={forceCompressorFault}
           onToggleValve={toggleValve}
           onToggleDryerStatus={toggleDryerStatus}
+          onSelectionChange={setHasSelection}
         />
 
         <RightPanel
@@ -616,6 +657,7 @@ export default function ScadaDashboard() {
           onClearAlarms={handleClearAlarms}
           alarmsMuted={alarmsMuted}
           onToggleMute={() => setAlarmsMuted(!alarmsMuted)}
+          show={hasSelection}
         />
       </main>
 
@@ -629,13 +671,14 @@ export default function ScadaDashboard() {
         <div className="flex items-center gap-4">
           <Link
             href="/compressed-air"
+            replace
             className="flex items-center gap-1.5 px-2.5 py-1 rounded border border-blue-300 dark:border-blue-700 bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900 text-[9px] font-mono font-bold uppercase tracking-wider transition-all"
           >
             <Pencil className="w-3 h-3" />
             Edit Layout
           </Link>
           <span className="text-slate-600 italic font-mono text-[9px]">Modbus TCP @ 192.168.1.104</span>
-          <span className="text-slate-600 italic font-mono text-[9px]">SCADA v4.2.1-stable</span>
+          <span className="text-slate-600 italic font-mono text-[9px]">PLC Dashboard v1.0.0</span>
         </div>
       </footer>
     </div>
