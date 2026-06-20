@@ -185,7 +185,7 @@ export default function MonitoringDashboard() {
   const emitAlarm = (tag: string, device: string, message: string, severity: 'WARNING' | 'CRITICAL') => {
     const timestamp = new Date().toLocaleTimeString(undefined, { hour12: false });
     alarmCounter.current += 1;
-    const id = `${tag}-${Date.now()}-${alarmCounter.current}`;
+    const id = `${tag}-${alarmCounter.current}-${Math.random().toString(36).slice(2, 9)}`;
 
     setTelemetry((prev) => {
       const isDuplicate = prev.alarms.some((a) => a.tag === tag && a.message === message && !a.acknowledged);
