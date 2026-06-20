@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { RefreshCw, Wind } from 'lucide-react';
-import { SystemTelemetry } from '@/types/scada';
+import { SystemTelemetry } from '@/types/monitoring';
 import { useTheme } from '@/context/ThemeContext';
 
 interface HeaderProps {
@@ -17,8 +17,6 @@ export default function Header({
   telemetry,
   setSimMode,
   resetSimulation,
-  muteAlarms,
-  alarmsMuted,
 }: HeaderProps) {
   const { theme } = useTheme();
   const [timeStr, setTimeStr] = useState<string>('');

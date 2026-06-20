@@ -25,7 +25,7 @@ type AnimatedPipeEdgeType = Edge<EditorEdgeData, 'animatedPipe'>;
 export function AnimatedPipeEdge(props: EdgeProps<AnimatedPipeEdgeType>) {
   const {
     id, sourceX, sourceY, targetX, targetY,
-    sourcePosition, targetPosition, data, selected, markerEnd,
+    sourcePosition, targetPosition, data, selected,
   } = props;
 
   const { screenToFlowPosition } = useReactFlow();
@@ -39,24 +39,44 @@ export function AnimatedPipeEdge(props: EdgeProps<AnimatedPipeEdgeType>) {
   const direction = data?.flowDirection || 'forward';
   const waypoints: PipeWaypoint[] = data?.waypoints || [];
 
-  // Check if source node is a flow-meter - use static dots instead of animated flow
+  // Check if source node is an instrument/sensor (no run/stop button) - use signal line style
   const { getNodes } = useReactFlow();
   const sourceNode = getNodes().find((n) => n.id === props.source);
-  const isFlowMeter = sourceNode && (sourceNode.data as EditorNodeData)?.equipmentType === 'flow-meter';
-  const useStaticDots = isFlowMeter && !animated;
+  const equipmentType = (sourceNode?.data as EditorNodeData)?.equipmentType;
+  const isInstrumentLine = sourceNode && ['pressure-transmitter', 'temperature-sensor'].includes(equipmentType || '');
 
   // Path: segments through waypoints, else smoothstep
   let edgePath: string;
+  const overlap = 14; // Push points deeper inside the node to perfectly stick
+  
+  let sx = sourceX;
+  let sy = sourceY;
+  let tx = targetX;
+  let ty = targetY;
+
+  // Only apply overlap for thick flow pipes, not instrumentation lines
+  if (!isInstrumentLine) {
+    if (sourcePosition === 'right') sx -= overlap;
+    else if (sourcePosition === 'left') sx += overlap;
+    else if (sourcePosition === 'top') sy += overlap;
+    else if (sourcePosition === 'bottom') sy -= overlap;
+
+    if (targetPosition === 'right') tx -= overlap;
+    else if (targetPosition === 'left') tx += overlap;
+    else if (targetPosition === 'top') ty += overlap;
+    else if (targetPosition === 'bottom') ty -= overlap;
+  }
+
   if (waypoints.length > 0) {
     const pts = [
-      { x: sourceX, y: sourceY },
+      { x: sx, y: sy },
       ...waypoints,
-      { x: targetX, y: targetY },
+      { x: tx, y: ty },
     ];
     edgePath = pts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
   } else {
     [edgePath] = getSmoothStepPath({
-      sourceX, sourceY, sourcePosition, targetX, targetY, targetPosition, borderRadius: 12,
+      sourceX: sx, sourceY: sy, sourcePosition, targetX: tx, targetY: ty, targetPosition, borderRadius: 12,
     });
   }
 
@@ -92,21 +112,45 @@ export function AnimatedPipeEdge(props: EdgeProps<AnimatedPipeEdgeType>) {
   const midX = (sourceX + targetX) / 2;
   const midY = (sourceY + targetY) / 2;
 
+  const instrumentStyle = { stroke: '#94a3b8', strokeWidth: 1.5, strokeDasharray: '4 4' };
+  const instrumentMarker = 'url(#instrument-arrow)';
+
   return (
     <>
-      {/* Background glow */}
-      <BaseEdge
-        id={`${id}-bg`}
-        path={edgePath}
-        style={{ stroke: flowColor + '28', strokeWidth: thickness + 8, strokeLinecap: 'round' }}
-      />
-      {/* Main pipe */}
+      {isInstrumentLine && (
+        <defs>
+          <marker
+            id="instrument-arrow"
+            viewBox="0 0 10 10"
+            refX="8"
+            refY="5"
+            markerWidth="5"
+            markerHeight="5"
+            orient="auto-start-reverse"
+          >
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#94a3b8" />
+          </marker>
+        </defs>
+      )}
+
+      {/* Background glow - hidden for instrument lines */}
+      {!isInstrumentLine && (
+        <BaseEdge
+          id={`${id}-bg`}
+          path={edgePath}
+          style={{ stroke: flowColor + '28', strokeWidth: thickness + 8, strokeLinecap: 'round' }}
+        />
+      )}
+      
+      {/* Main pipe / Instrument line */}
       <BaseEdge
         id={id}
         path={edgePath}
-        markerEnd={markerEnd}
-        style={{ stroke: flowColor, strokeWidth: thickness, strokeLinecap: 'round' }}
+        markerEnd={isInstrumentLine ? instrumentMarker : undefined}
+        markerStart={undefined}
+        style={isInstrumentLine ? instrumentStyle : { stroke: flowColor, strokeWidth: thickness, strokeLinecap: 'round' }}
       />
+      
       {/* Wide transparent hit area — double-click to add waypoint */}
       <path
         d={edgePath}
@@ -116,8 +160,9 @@ export function AnimatedPipeEdge(props: EdgeProps<AnimatedPipeEdgeType>) {
         style={{ cursor: 'crosshair', pointerEvents: 'stroke' }}
         onDoubleClick={onPathDoubleClick}
       />
-      {/* Flow animation */}
-      {animated && !useStaticDots && (
+      
+      {/* Flow animation - hidden for instrument lines */}
+      {animated && !isInstrumentLine && (
         <path
           d={edgePath}
           fill="none"
@@ -130,21 +175,6 @@ export function AnimatedPipeEdge(props: EdgeProps<AnimatedPipeEdgeType>) {
             pointerEvents: 'none',
           }}
         />
-      )}
-      {/* Static dots for flow-meter edges */}
-      {useStaticDots && (
-        <>
-          <path
-            d={edgePath}
-            fill="none"
-            stroke="#94a3b8"
-            strokeWidth={thickness}
-            strokeDasharray="2 6"
-            strokeLinecap="round"
-            opacity={0.5}
-            style={{ pointerEvents: 'none' }}
-          />
-        </>
       )}
       {/* Selection highlight */}
       {selected && (

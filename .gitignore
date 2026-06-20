@@ -43,3 +43,5 @@ next-env.d.ts
 # local
 AGENTS.md
 CLAUDE.md
+*.log
+dev_output.log

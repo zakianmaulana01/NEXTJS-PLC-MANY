@@ -5,7 +5,7 @@ import {
   Fan, Droplets, Container, Activity, Gauge, Zap, Flame, Factory, Box, Thermometer,
   ChevronDown, ChevronRight, GripVertical, Search,
 } from 'lucide-react';
-import { EQUIPMENT_CATALOGUE, type EquipmentCatalogueItem, type EquipmentType } from '@/types/editor';
+import { EQUIPMENT_CATALOGUE, type EquipmentCatalogueItem } from '@/types/editor';
 
 /* -- Icon Map --------------------------------------- */
 

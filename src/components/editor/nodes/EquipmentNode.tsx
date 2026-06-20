@@ -2,7 +2,7 @@
 
 import React, { memo } from 'react';
 import { Handle, Position, type NodeProps, type Node } from '@xyflow/react';
-import { Fan, Droplets, Activity, Gauge, Flame, Wind, Power, RotateCw } from 'lucide-react';
+import { Fan, Droplets, Activity, Gauge, Wind, Power, RotateCw } from 'lucide-react';
 import type { EditorNodeData } from '@/types/editor';
 import { useEditorStore } from '@/hooks/useEditorStore';
 
@@ -10,26 +10,25 @@ type EquipmentNodeType = Node<EditorNodeData, 'equipment'>;
 
 function EquipmentNodeInner(props: NodeProps<EquipmentNodeType>) {
   const data = props.data;
-  const selected = props.selected;
-
-  const isRun = data.status === 'RUN';
-  const isFault = data.status === 'FAULT';
+  const selected = !!props.selected;
+  
+  const isEditor = (data.isEditor as boolean) ?? true;
 
   // Render based on equipment type
   switch (data.equipmentType) {
     case 'compressor':
-      return <CompressorCard data={data} selected={selected} />;
+      return <CompressorCard data={data} selected={selected} isEditor={isEditor} />;
     case 'dryer':
-      return <DryerCard data={data} selected={selected} />;
+      return <DryerCard data={data} selected={selected} isEditor={isEditor} />;
     case 'buffer-tank':
     case 'receiver-tank':
       return <TankCard data={data} selected={selected} />;
     case 'valve':
       return <ValveCard data={data} selected={selected} />;
     case 'flow-meter':
-      return <FlowMeterCard data={data} selected={selected} />;
+      return <FlowMeterCard data={data} selected={selected} isEditor={isEditor} />;
     case 'boiler':
-      return <BoilerCard data={data} selected={selected} />;
+      return <BoilerCard selected={selected} />;
     case 'header-boiler':
       return <HeaderBoilerCard data={data} selected={selected} />;
     case 'pressure-transmitter':
@@ -43,7 +42,7 @@ function EquipmentNodeInner(props: NodeProps<EquipmentNodeType>) {
 }
 
 // ========== COMPRESSOR ==========
-function CompressorCard({ data, selected }: { data: EditorNodeData; selected?: boolean }) {
+function CompressorCard({ data, selected, isEditor }: { data: EditorNodeData; selected?: boolean; isEditor?: boolean }) {
   const isRun = data.status === 'RUN';
   const isFault = data.status === 'FAULT';
   const hasCustom = data.metrics && data.metrics.length > 0;
@@ -59,7 +58,7 @@ function CompressorCard({ data, selected }: { data: EditorNodeData; selected?: b
           <span className={`text-[9px] font-black ${isFault ? 'text-rose-500' : isRun ? 'text-emerald-500' : 'text-slate-400'}`}>{data.status}</span>
         </div>
       </div>
-      <div className="space-y-0.5 text-[10px] text-slate-700 dark:text-slate-300 mb-2">
+      <div className={`space-y-0.5 text-[10px] text-slate-700 dark:text-slate-300 ${isEditor ? 'mb-2' : ''}`}>
         {hasCustom ? (
           data.metrics!.map((m) => (
             <Row key={m.id} label={`${m.label}:`} value={isRun ? `${m.fallback}${m.unit ? ' ' + m.unit : ''}` : `0${m.unit ? ' ' + m.unit : ''}`} color={m.color} />
@@ -73,20 +72,22 @@ function CompressorCard({ data, selected }: { data: EditorNodeData; selected?: b
           </>
         )}
       </div>
-      <div className="flex items-center gap-1">
-        <button className={`flex-1 py-1 font-mono font-bold text-[9px] uppercase border text-center transition ${isRun ? 'border-emerald-300 dark:border-emerald-800 text-emerald-500' : 'border-slate-200 dark:border-slate-800 text-slate-400'}`}>
-          <Power className="w-2.5 h-2.5 inline mr-1" />{isRun ? 'STOP' : 'RUN'}
-        </button>
-        <button className="p-1 border border-slate-200 dark:border-slate-800 text-slate-400">
-          <RotateCw className="w-2.5 h-2.5" />
-        </button>
-      </div>
+      {isEditor ? (
+        <div className="flex items-center gap-1">
+          <button className={`flex-1 py-1 font-mono font-bold text-[9px] uppercase border text-center transition ${isRun ? 'border-emerald-300 dark:border-emerald-800 text-emerald-500' : 'border-slate-200 dark:border-slate-800 text-slate-400'}`}>
+            <Power className="w-2.5 h-2.5 inline mr-1" />{isRun ? 'STOP' : 'RUN'}
+          </button>
+          <button className="p-1 border border-slate-200 dark:border-slate-800 text-slate-400">
+            <RotateCw className="w-2.5 h-2.5" />
+          </button>
+        </div>
+      ) : null}
     </div>
   );
 }
 
 // ========== DRYER ==========
-function DryerCard({ data, selected }: { data: EditorNodeData; selected?: boolean }) {
+function DryerCard({ data, selected, isEditor }: { data: EditorNodeData; selected?: boolean; isEditor?: boolean }) {
   const isRun = data.status === 'RUN';
   const isFault = data.status === 'FAULT';
   return (
@@ -98,13 +99,19 @@ function DryerCard({ data, selected }: { data: EditorNodeData; selected?: boolea
         <span className="text-[9px] font-extrabold text-slate-500 tracking-wider">{data.tagName}</span>
         <Droplets className={`w-3 h-3 ${isRun ? 'text-cyan-500 animate-bounce' : 'text-slate-300'}`} />
       </div>
-      <div className="space-y-0.5 text-[9px] text-slate-500 mb-1.5">
+      <div className={`space-y-0.5 text-[9px] text-slate-500 ${isEditor ? 'mb-1.5' : ''}`}>
         <Row label="DEW PT:" value={isRun ? '-40.0°C' : 'AMBIENT°C'} color={isRun ? 'text-cyan-500' : 'text-rose-500'} />
         <Row label="OUTLET:" value={isRun ? '19.8°C' : '22°C'} />
       </div>
-      <button className={`w-full py-0.5 text-[8px] uppercase font-bold border text-center transition ${isRun ? 'border-cyan-300 dark:border-cyan-800 text-cyan-500' : 'border-slate-200 dark:border-slate-700 text-slate-400'}`}>
-        {isRun ? 'ONLINE' : 'BYPASS'}
-      </button>
+      {isEditor ? (
+        <button className={`w-full py-0.5 text-[8px] uppercase font-bold border text-center transition ${isRun ? 'border-cyan-300 dark:border-cyan-800 text-cyan-500' : 'border-slate-200 dark:border-slate-700 text-slate-400'}`}>
+          {isRun ? 'ONLINE' : 'BYPASS'}
+        </button>
+      ) : (
+        <div className={`w-full py-0.5 text-[8px] uppercase font-bold border text-center ${isRun ? 'border-cyan-300 dark:border-cyan-800 text-cyan-500' : 'border-slate-200 dark:border-slate-700 text-slate-400'}`}>
+          {isRun ? 'ONLINE' : 'BYPASS'}
+        </div>
+      )}
     </div>
   );
 }
@@ -112,11 +119,17 @@ function DryerCard({ data, selected }: { data: EditorNodeData; selected?: boolea
 // ========== TANK ==========
 function TankCard({ data, selected }: { data: EditorNodeData; selected?: boolean }) {
   const waterLevel = 25;
-  const tankHeight = 140;
-  const waterHeight = (waterLevel / 100) * tankHeight;
   return (
-    <div className={`w-[90px] flex flex-col items-center ${selected ? 'ring-2 ring-blue-500 rounded' : ''}`}>
+    <div className={`w-[90px] relative flex flex-col items-center ${selected ? 'ring-2 ring-blue-500 rounded' : ''}`}>
       <Handles selected={selected} />
+      
+      {/* HTML Overlay for Tag Name (supports wrapping, matches boiler style) */}
+      <div className="absolute top-4 left-1/2 -translate-x-1/2 w-[70px] text-center pointer-events-none flex justify-center z-10">
+        <div className="font-mono text-[10px] font-extrabold tracking-widest uppercase text-[#94a3b8] break-words leading-tight w-[50px] drop-shadow-md">
+          {data.tagName}
+        </div>
+      </div>
+
       <svg width="70" height={180} viewBox="0 0 70 180" className="drop-shadow-lg">
         <defs>
           <linearGradient id="gradient-tank-light-editor" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -138,15 +151,35 @@ function TankCard({ data, selected }: { data: EditorNodeData; selected?: boolean
         </defs>
         <rect x="0" y="0" width="70" height="180" rx="35" fill="#cbd5e1" opacity="0.6" />
         <rect x="0" y="0" width="70" height="180" rx="35" fill="url(#gradient-tank-light-editor)" stroke="#94a3b8" strokeWidth="2.5" className="dark:fill-[url(#gradient-tank-dark-editor)] dark:stroke-slate-600" />
-        <line x1="0" y1="50" x2="70" y2="50" className="stroke-slate-400 dark:stroke-slate-700" strokeWidth="1.5" />
-        <line x1="0" y1="130" x2="70" y2="130" className="stroke-slate-400 dark:stroke-slate-700" strokeWidth="1.5" />
-        <rect x="25" y="40" width="20" height="100" rx="4" fill="#1e293b" stroke="#475569" className="dark:fill-[#090d16] dark:stroke-[#1e293b]" />
-        <rect x="25" y={40 + (100 - waterLevel)} width="20" height={waterLevel} rx="2" fill="url(#gradient-water-editor)" className="shadow-[0_0_8px_rgba(56,189,248,0.4)]" />
-        <line x1="21" y1="50" x2="25" y2="50" stroke="#475569" strokeWidth="1" />
-        <line x1="21" y1="90" x2="25" y2="90" stroke="#475569" strokeWidth="1" />
-        <line x1="21" y1="130" x2="25" y2="130" stroke="#475569" strokeWidth="1" />
-        <text x="35" y="28" fill="#94a3b8" className="font-mono text-[10px] font-extrabold tracking-widest uppercase" textAnchor="middle">{data.tagName}</text>
-        <text x="35" y="162" fill="#38bdf8" className="font-mono text-[10.5px] font-bold" textAnchor="middle">{data.staticValue || '7.2 bar'}</text>
+        
+        {/* Horizontal Ribs */}
+        <line x1="0" y1="40" x2="70" y2="40" className="stroke-slate-400 dark:stroke-slate-700" strokeWidth="1.5" />
+        <line x1="0" y1="140" x2="70" y2="140" className="stroke-slate-400 dark:stroke-slate-700" strokeWidth="1.5" />
+        
+        {/* Central Sight Glass (Level Indicator) */}
+        <rect x="25" y="45" width="20" height="90" rx="4" fill="#1e293b" stroke="#475569" className="dark:fill-[#090d16] dark:stroke-[#1e293b]" />
+        
+        {/* Water Body */}
+        <rect x="25" y={45 + (90 - waterLevel * 0.9)} width="20" height={waterLevel * 0.9} rx="2" fill="url(#gradient-water-editor)" className="shadow-[0_0_8px_rgba(56,189,248,0.4)]" />
+        
+        {/* 3D Liquid Surface Highlight */}
+        <ellipse cx="35" cy={45 + (90 - waterLevel * 0.9)} rx="9.5" ry="2" fill="#38bdf8" />
+        <ellipse cx="35" cy={45 + (90 - waterLevel * 0.9)} rx="5" ry="0.8" fill="#bae6fd" />
+        
+        {/* Glass Glare / Reflection */}
+        <rect x="27" y="47" width="3" height="86" rx="1.5" fill="#ffffff" opacity="0.15" />
+        
+        {/* Sight Glass Tick Marks */}
+        <g stroke="#475569" strokeWidth="1" className="opacity-70 dark:opacity-100 dark:stroke-slate-500">
+          <line x1="21" y1="55" x2="25" y2="55" />
+          <line x1="23" y1="65" x2="25" y2="65" strokeWidth="0.5" />
+          <line x1="21" y1="75" x2="25" y2="75" />
+          <line x1="23" y1="85" x2="25" y2="85" strokeWidth="0.5" />
+          <line x1="21" y1="95" x2="25" y2="95" />
+          <line x1="23" y1="105" x2="25" y2="105" strokeWidth="0.5" />
+          <line x1="21" y1="115" x2="25" y2="115" />
+          <line x1="23" y1="125" x2="25" y2="125" strokeWidth="0.5" />
+        </g>
       </svg>
     </div>
   );
@@ -169,33 +202,39 @@ function ValveCard({ data, selected }: { data: EditorNodeData; selected?: boolea
 }
 
 // ========== FLOW METER ==========
-function FlowMeterCard({ data, selected }: { data: EditorNodeData; selected?: boolean }) {
+function FlowMeterCard({ data, selected, isEditor }: { data: EditorNodeData; selected?: boolean; isEditor?: boolean }) {
   const isRun = data.status === 'RUN';
   return (
-    <div className={`w-[130px] bg-white dark:bg-slate-900 border-l-2 border-cyan-500 border rounded-none p-2 flex flex-col text-xs font-mono transition-all shadow-[0_0_10px_rgba(89,199,249,0.15)]
+    <div className={`w-[120px] bg-white dark:bg-[#090d16] border rounded-none p-2 flex flex-col font-mono transition-all
+      ${isRun ? 'border-cyan-500' : 'border-slate-300 dark:border-slate-800'}
       ${selected ? 'ring-2 ring-blue-500' : ''}`}>
       <Handles selected={selected} />
-      <div className="flex items-center justify-between mb-1.5 pb-1 border-b border-slate-100 dark:border-slate-800">
-        <span className="font-mono font-black text-[9px] text-slate-500 tracking-wider">{data.tagName}</span>
-        <Activity className="w-3 h-3 text-cyan-500" />
+      <div className="flex justify-between items-center mb-1 pb-1 border-b border-slate-100 dark:border-slate-800/50">
+        <span className="text-[10px] font-black text-slate-500 tracking-wider">{data.tagName}</span>
+        <Activity className={`w-3.5 h-3.5 ${isRun ? 'text-cyan-500' : 'text-slate-500'}`} />
       </div>
-      <div className="text-center mb-1.5">
-        <span className="text-[9px] text-slate-400 uppercase tracking-widest font-bold">FLOW METER</span>
-      </div>
-      <div className="flex items-baseline justify-center gap-1 mb-1.5 bg-slate-50 dark:bg-slate-900/50 py-1.5 rounded">
+      <div className="text-center text-[8px] font-bold text-slate-400 mb-0.5 tracking-widest">FLOW METER</div>
+      <div className={`flex items-baseline justify-center gap-1 bg-slate-50 dark:bg-slate-900/50 py-1.5 rounded ${isEditor ? 'mb-1.5' : ''}`}>
         <span className={`text-lg font-bold leading-none ${isRun ? 'text-cyan-500' : 'text-slate-400'}`}>{isRun ? (data.staticValue || '850') : '0'}</span>
         <span className="text-[8px] text-slate-400 font-bold">Nm³/h</span>
       </div>
-      <button className={`w-full py-1 font-mono font-bold text-[9px] uppercase border text-center transition flex items-center justify-center gap-1
-        ${isRun ? 'border-emerald-300 dark:border-emerald-800 text-emerald-500' : 'border-slate-200 dark:border-slate-800 text-slate-400'}`}>
-        <Power className="w-2.5 h-2.5" /> {isRun ? 'STOP' : 'START'}
-      </button>
+      {isEditor ? (
+        <button className={`w-full py-1 font-mono font-bold text-[9px] uppercase border text-center transition flex items-center justify-center gap-1
+          ${isRun ? 'border-emerald-300 dark:border-emerald-800 text-emerald-500' : 'border-slate-200 dark:border-slate-800 text-slate-400'}`}>
+          <Power className="w-2.5 h-2.5" /> {isRun ? 'STOP' : 'START'}
+        </button>
+      ) : (
+        <div className={`w-full py-1 font-mono font-bold text-[9px] uppercase border text-center flex items-center justify-center gap-1
+          ${isRun ? 'border-emerald-300 dark:border-emerald-800 text-emerald-500' : 'border-slate-200 dark:border-slate-800 text-slate-400'}`}>
+          {isRun ? 'RUNNING' : 'STOPPED'}
+        </div>
+      )}
     </div>
   );
 }
 
 // ========== BOILER ==========
-function BoilerCard({ data, selected }: { data: EditorNodeData; selected?: boolean }) {
+function BoilerCard({ selected }: { selected?: boolean }) {
   return (
     <div className={`w-[120px] flex flex-col items-center gap-1 ${selected ? 'ring-2 ring-blue-500 rounded p-1' : 'p-1'}`}>
       <Handles selected={selected} />
@@ -257,7 +296,7 @@ function HeaderBoilerCard({ data, selected }: { data: EditorNodeData; selected?:
   const angles = [0, 45, 90, 135, 180, 225, 270, 315];
   return (
     <div className={`w-[110px] flex flex-col items-center gap-1 ${selected ? 'ring-2 ring-blue-500 rounded p-1' : 'p-1'}`}>
-      <Handles selected={selected} />
+      <HeaderBoilerHandles selected={selected} />
       <svg width="100" height="90" viewBox="0 0 100 90" className="drop-shadow-lg">
         <defs>
           <linearGradient id="gradient-hb-light-editor" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -301,11 +340,11 @@ function HeaderBoilerCard({ data, selected }: { data: EditorNodeData; selected?:
 function SensorBadge({ data, selected }: { data: EditorNodeData; selected?: boolean }) {
   const icon = data.equipmentType === 'pressure-transmitter' ? <Gauge className="w-3 h-3 text-cyan-500" /> : <Wind className="w-3 h-3 text-cyan-500" />;
   return (
-    <div className={`px-2.5 py-1 border border-cyan-500 bg-white dark:bg-slate-900 rounded flex flex-col items-center gap-0.5
+    <div className={`min-w-[75px] px-2.5 py-1 border border-cyan-500 bg-white dark:bg-slate-900 rounded flex flex-col items-center gap-0.5
       ${selected ? 'ring-2 ring-blue-500' : ''}`}>
       <Handles selected={selected} />
-      <span className="text-[8px] text-slate-500 font-mono font-black">{data.tagName}</span>
-      <div className="flex items-center gap-1">
+      <span className="text-[8px] text-slate-500 font-mono font-black whitespace-nowrap">{data.tagName}</span>
+      <div className="flex items-center gap-1 whitespace-nowrap">
         {icon}
         <span className="text-[10px] font-mono font-bold text-cyan-500">{data.staticValue || '7.15 bar'}</span>
       </div>
@@ -358,6 +397,29 @@ function Handles({ selected }: { selected?: boolean }) {
 
       <Handle type="target" position={Position.Right} id="target-right" className={`${handleStyle} ${baseStyle} !-right-1.5`} />
       <Handle type="source" position={Position.Right} id="source-right" className={`${handleStyle} ${baseStyle} !-right-1.5`} />
+    </>
+  );
+}
+
+function HeaderBoilerHandles({ selected }: { selected?: boolean }) {
+  const connecting = useEditorStore((s) => s.connecting);
+  const handleStyle = "!w-3 !h-3 !bg-cyan-400 hover:!bg-cyan-500 !border-2 !border-white dark:!border-slate-900 !rounded-full transition-all cursor-crosshair";
+  const hiddenStyle = "!opacity-0";
+  const visibleStyle = "!opacity-80 hover:!opacity-100";
+  const baseStyle = selected || connecting ? visibleStyle : hiddenStyle;
+  return (
+    <>
+      <Handle type="target" position={Position.Top} id="target-top" className={`${handleStyle} ${baseStyle} !top-[10px]`} />
+      <Handle type="source" position={Position.Top} id="source-top" className={`${handleStyle} ${baseStyle} !top-[10px]`} />
+
+      <Handle type="target" position={Position.Bottom} id="target-bottom" className={`${handleStyle} ${baseStyle} !top-[36px]`} />
+      <Handle type="source" position={Position.Bottom} id="source-bottom" className={`${handleStyle} ${baseStyle} !top-[36px]`} />
+
+      <Handle type="target" position={Position.Left} id="target-left" className={`${handleStyle} ${baseStyle} !top-[29px] !left-[11px]`} />
+      <Handle type="source" position={Position.Left} id="source-left" className={`${handleStyle} ${baseStyle} !top-[29px] !left-[11px]`} />
+
+      <Handle type="target" position={Position.Right} id="target-right" className={`${handleStyle} ${baseStyle} !top-[29px] !right-[11px]`} />
+      <Handle type="source" position={Position.Right} id="source-right" className={`${handleStyle} ${baseStyle} !top-[29px] !right-[11px]`} />
     </>
   );
 }

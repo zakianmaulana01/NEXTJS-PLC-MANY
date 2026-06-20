@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
-import { Activity, Power, Gauge } from 'lucide-react';
-import type { CanvasNodeConfig, PipeSegmentConfig, PipeColorId } from '@/types/canvas';
+import { Activity, Power } from 'lucide-react';
+import type { CanvasNodeConfig, PipeSegmentConfig } from '@/types/canvas';
 import { PIPE_COLOR_PRESETS } from '@/types/canvas';
 import { useCanvasState } from '@/hooks/useCanvasState';
 import NodeSidebar from '@/components/hmi/NodeSidebar';
@@ -64,9 +64,9 @@ export default function SteamPlantPage() {
   // Simulation tick
   useEffect(() => {
     const id = setInterval(() => {
-      setPtHb((p) => Number((12.0 + Math.sin(Date.now() / 8000) * 0.3 + (Math.random() - 0.5) * 0.1).toFixed(2)));
-      setTtHb((t) => Number((180.0 + Math.sin(Date.now() / 6000) * 2 + (Math.random() - 0.5) * 0.5).toFixed(1)));
-      setFtHb((f) => Math.round(3400 + Math.sin(Date.now() / 5000) * 80 + (Math.random() - 0.5) * 20));
+      setPtHb(() => Number((12.0 + Math.sin(Date.now() / 8000) * 0.3 + (Math.random() - 0.5) * 0.1).toFixed(2)));
+      setTtHb(() => Number((180.0 + Math.sin(Date.now() / 6000) * 2 + (Math.random() - 0.5) * 0.5).toFixed(1)));
+      setFtHb(() => Math.round(3400 + Math.sin(Date.now() / 5000) * 80 + (Math.random() - 0.5) * 20));
     }, 1000);
     return () => clearInterval(id);
   }, []);
