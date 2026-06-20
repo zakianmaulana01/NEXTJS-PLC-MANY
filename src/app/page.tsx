@@ -179,11 +179,13 @@ export default function MonitoringDashboard() {
 
   const [alarmsMuted, setAlarmsMuted] = useState<boolean>(false);
   const tickCounter = useRef<number>(0);
+  const alarmCounter = useRef<number>(0);
 
 
   const emitAlarm = (tag: string, device: string, message: string, severity: 'WARNING' | 'CRITICAL') => {
     const timestamp = new Date().toLocaleTimeString(undefined, { hour12: false });
-    const id = tag + '-' + Date.now();
+    alarmCounter.current += 1;
+    const id = `${tag}-${Date.now()}-${alarmCounter.current}`;
 
     setTelemetry((prev) => {
       const isDuplicate = prev.alarms.some((a) => a.tag === tag && a.message === message && !a.acknowledged);
