@@ -117,13 +117,12 @@ function CustomCanvas({ layout, telemetry, onSelectionChange }: { layout: SavedL
           data.status = telemetry.valves[valveKey].open ? 'RUN' : 'STOP';
         }
       } else if (data.equipmentType === 'flow-meter') {
-        // Map by tag: FT-201 weaving, FT-202 spinning, else header
         let flow = telemetry.header.flow;
         if (tag === 'FT-201') flow = telemetry.branches.weaving.flow;
         else if (tag === 'FT-202') flow = telemetry.branches.spinning.flow;
         data.status = flow > 0 ? 'RUN' : 'STOP';
         data.staticValue = `${flow.toFixed(0)}`;
-      } else if (data.equipmentType === 'pressure-transmitter') {
+      } else if (data.equipmentType === 'pressure-transmitter' || data.equipmentType === 'temperature-sensor') {
         data.status = 'RUN';
         data.staticValue = `${telemetry.header.pressure.toFixed(2)} bar`;
       }

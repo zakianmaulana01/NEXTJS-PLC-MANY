@@ -563,17 +563,13 @@ export default function MonitoringDashboard() {
         if (criticalAlarmsCount > 0) overallStatus = 'ALARM';
         else if (activeAlarmsCount > 0) overallStatus = 'WARNING';
 
-        const pressureNoise = (Math.random() - 0.5) * 0.15;
-        const flowNoise = (Math.random() - 0.5) * 15;
-        const dewNoise = (Math.random() - 0.5) * 1.5;
+        const nextHeaderPFinal = Number(nextHeaderP.toFixed(2));
+        const nextTotalFlow = Math.round(mainOpen ? totalDemandOutflow : 0);
+        const currentDewPoint = updatedDryers.find((d) => d.status === 'RUN')?.dewPoint ?? 15.0;
 
-        const visualP = Math.max(6.2, Math.min(6.6, 6.4 + pressureNoise));
-        const visualF = Math.max(730, Math.min(790, 760 + flowNoise));
-        const visualD = Math.max(-42, Math.min(-38, -40 + dewNoise));
-
-        setHistoryPressure((h) => [...h.slice(1), Number(visualP.toFixed(2))]);
-        setHistoryFlow((h) => [...h.slice(1), Math.round(visualF)]);
-        setHistoryDewPoint((h) => [...h.slice(1), Number(visualD.toFixed(1))]);
+        setHistoryPressure((h) => [...h.slice(1), nextHeaderPFinal]);
+        setHistoryFlow((h) => [...h.slice(1), nextTotalFlow]);
+        setHistoryDewPoint((h) => [...h.slice(1), Number(currentDewPoint.toFixed(1))]);
 
         return {
           ...prev,
@@ -581,8 +577,8 @@ export default function MonitoringDashboard() {
           dryers: updatedDryers,
           overallStatus,
           header: {
-            pressure: Number(nextHeaderP.toFixed(2)),
-            flow: Math.round(mainOpen ? totalDemandOutflow : 0),
+            pressure: nextHeaderPFinal,
+            flow: nextTotalFlow,
           },
           tank: {
             ...prev.tank,
