@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { RefreshCw, Wind } from 'lucide-react';
 import { SystemTelemetry } from '@/types/monitoring';
 import { useTheme } from '@/context/ThemeContext';
+import { ThemeToggle } from '@/components/shared/theme-toggle';
 
 interface HeaderProps {
   telemetry: SystemTelemetry;
@@ -159,6 +160,8 @@ export default function Header({
             {timeStr}
           </span>
         </div>
+
+        <ThemeToggle />
       </div>
     </header>
   );
